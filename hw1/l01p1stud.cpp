@@ -60,27 +60,41 @@ void Display3() {
 }
 
 void Display4() {
-   glColor3f(1,0.1,0.1); // rosu
-   // trasare linie poligonala GL_LINE_STRIP : (v0,v1), (v1,v2), (v_{n-2},v_{n-1})
-   glBegin(GL_LINE_STRIP); 
-   // de completat ...
-   glEnd();
+    glColor3f(1,0.1,0.1); // rosu
+    // trasare linie poligonala GL_LINE_STRIP : (v0,v1), (v1,v2), (v_{n-2},v_{n-1})
+    glBegin(GL_LINE_STRIP);
+    // de completat ...
+    glVertex2f(1,1);
+    glVertex2f(1,0.85);
+    glVertex2f(0.6,0.6);
+    glVertex2f(0.6,0.45);
+    glEnd();
 }
 
 void Display5() {
-   glColor3f(1,0.1,0.1); // rosu
-   // trasare linie poligonala inchisa GL_LINE_LOOP : (v0,v1), (v1,v2), (v_{n-1},v0)
-   glBegin(GL_LINE_LOOP); 
-   // de completat ...
-   glEnd();
+    glColor3f(1,0.1,0.1); // rosu
+    // trasare linie poligonala inchisa GL_LINE_LOOP : (v0,v1), (v1,v2), (v_{n-1},v0)
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(1,1);
+    glVertex2f(1,0.85);
+    glVertex2f(0.6,0.6);
+    glVertex2f(0.6,0.45);
+    glEnd();
 }
 
 void Display6() {
-   glColor3f(1,0.1,0.1); // rosu
-   // trasare triunghiuri GL_TRIANGLES : (v0,v1,v2), (v3,v4,v5), ...
-   glBegin(GL_TRIANGLES); 
-   // de completat ...
-   glEnd();
+    glColor3f(1,0.1,0.1); // rosu
+    // trasare triunghiuri GL_TRIANGLES : (v0,v1,v2), (v3,v4,v5), ...
+    glBegin(GL_TRIANGLES);
+    // de completat ...
+    glVertex2f(1,1);
+    glVertex2f(1,0.9);
+    glVertex2f(0.9,0.9);
+
+    glVertex2f(-1,-1);
+    glVertex2f(-1,-0.9);
+    glVertex2f(-0.9,-0.9);
+    glEnd();
 }
 
 void Display7() {
