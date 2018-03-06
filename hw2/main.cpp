@@ -205,14 +205,14 @@ double min(std::vector<double> &d) {
     return d[min_idx];
 }
 
-void normalize(std::vector<double> &x) {
+void normalize(std::vector<double> &x, double scale) {
     double x_min = min(x);
     double x_max = max(x);
-    double scale = (x_max - x_min) / 2.0;
+    double norm_factor = (x_max - x_min) / 2.0;
     double offset = (x_max + x_min) / 2.0;
 
-    for (int idx = 0; idx < x.size(); idx++) {
-        x[idx] = (x[idx] - offset) / scale;
+    for (double &idx : x) {
+        idx = scale * (idx - offset) / norm_factor;
     }
 }
 
@@ -221,7 +221,9 @@ void DisplayFunction(
         double domain_min,
         double domain_max,
         double ratio,
-        GLenum line_param) {
+        GLenum line_param,
+        double scale_x,
+        double scale_y) {
     vector<double> X, Y;
 
     for (std::function<pair<double, double>(double)> func : funcs) {
@@ -235,8 +237,8 @@ void DisplayFunction(
         }
     }
 
-    normalize(X);
-    normalize(Y);
+    normalize(X, scale_x);
+    normalize(Y, scale_y);
 
     glColor3f(1.0, 0, 0);
     glBegin(line_param);
@@ -258,7 +260,7 @@ void Display6() {
         return std::make_pair(x, y);
     });
 
-    DisplayFunction(v, -4*M_PI, 4*M_PI, 0.05, GL_LINE_STRIP);
+    DisplayFunction(v, -4*M_PI, 4*M_PI, 0.05, GL_LINE_STRIP, 1.0, 0.5);
 }
 
 // 2.2.4 Vali
@@ -271,7 +273,7 @@ void Display7() {
 
         return std::make_pair(x, y);
     });
-    DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP);
+    DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP, 1.0, 1.0);
 }
 
 // 2.2.5 Vali
@@ -284,7 +286,7 @@ void Display8() {
 
         return std::make_pair(x, y);
     });
-    DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP);
+    DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP, 1.0, 1.0);
 }
 
 // 3.1 Vali
@@ -311,7 +313,7 @@ void Display10() {
 
         return std::make_pair(x, y);
     });
-    DisplayFunction(v, -M_PI_4, M_PI_4, 0.05, GL_LINE_LOOP);
+    DisplayFunction(v, -M_PI_4, M_PI_4, 0.05, GL_LINE_LOOP, 0.8, 0.8);
 }
 
 void Init(void) {
