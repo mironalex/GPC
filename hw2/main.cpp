@@ -289,9 +289,18 @@ void Display8() {
     DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP, 1.0, 1.0);
 }
 
-// 3.1 Vali
+// 3.1 Alex
 void Display9() {
+    vector<function<pair<double, double>(double)>> v;
+    v.emplace_back([](double t) {
+        double a = 0.02;
+        double r = a * exp(1+t);
+        double x = r * cos(t);
+        double y = r * sin(t);
 
+        return std::make_pair(x, y);
+    });
+    DisplayFunction(v, 0, 2.2, 0.05, GL_LINE_STRIP, 0.8, 0.8);
 }
 
 // 3.2 Alex
