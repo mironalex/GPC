@@ -97,6 +97,47 @@ void Display2() {
 }
 
 
+// 2.1 Alex
+void Display3(){
+
+}
+
+
+// 2.2.1 Alex
+void Display4(){
+
+}
+
+// 2.2.2 Alex
+void Display5(){
+
+}
+
+// 2.2.3 Vali
+void Display6(){
+
+}
+
+// 2.2.4 Vali
+void Display7(){
+
+}
+
+// 2.2.5 Vali
+void Display8(){
+
+}
+
+// 3.1 Alex
+void Display9(){
+
+}
+
+// 3.2 Vali
+void Display10(){
+
+}
+
 void Init(void) {
 
     glClearColor(1.0,1.0,1.0,1.0);
@@ -118,6 +159,22 @@ void Display(void) {
         case '2':
             Display2();
             break;
+        case '3':
+            Display3();
+        case '4':
+            Display4();
+        case '5':
+            Display5();
+        case '6':
+            Display6();
+        case '7':
+            Display7();
+        case '8':
+            Display8();
+        case '9':
+            Display9();
+        case '0':
+            Display10();
         default:
             break;
     }
