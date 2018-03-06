@@ -5,6 +5,8 @@
 
 #include <GL/glut.h>
 #include <utility>
+#include <vector>
+#include <functional>
 
 // dimensiunea ferestrei in pixeli
 #define dim 300
@@ -183,29 +185,133 @@ void Display5(){
 
 }
 
+double max(std::vector<double> &d){
+    int max_idx = 0;
+    for(int idx = 0; idx < d.size(); idx++) {
+        if (d[idx] > d[max_idx]) {
+            max_idx = idx;
+        }
+    }
+    return d[max_idx];
+}
+
+double min(std::vector<double> &d){
+    int min_idx = 0;
+    for(int idx = 0; idx < d.size(); idx++) {
+        if (d[idx] < d[min_idx]) {
+            min_idx = idx;
+        }
+    }
+    return d[min_idx];
+}
+
+void normalize(std::vector<double> &x) {
+    double x_min = min(x);
+    double x_max = max(x);
+    double scale = (x_max - x_min) / 2.0;
+    double offset = (x_max + x_min) / 2.0;
+
+    for(int idx = 0; idx < x.size(); idx++) {
+        x[idx] = (x[idx] - offset) / scale;
+    }
+}
+
+void DisplayFunction(
+        vector<std::function<pair<double, double>(double)> > &funcs,
+        double domain_min,
+        double domain_max,
+        double ratio,
+        GLenum line_param) {
+    vector<double> X, Y;
+
+    for(std::function<pair<double, double>(double)> func : funcs) {
+        double domain_x = domain_min;
+        while (domain_x < domain_max) {
+            double x, y;
+            std::tie(x, y) = func(domain_x);
+            X.push_back(x);
+            Y.push_back(y);
+            domain_x += ratio;
+        }
+    }
+
+    normalize(X);
+    normalize(Y);
+
+    glColor3f(1.0, 0, 0);
+    glBegin(line_param);
+    for(int idx = 0; idx < X.size(); idx++){
+        glVertex2d(X[idx], Y[idx]);
+    }
+    glEnd();
+}
+
+
 // 2.2.3 Vali
 void Display6(){
+    vector<function<pair<double, double>(double)>> v;
+    v.push_back([](double t) {
+        double a = 0.1, b = 0.2;
+        double x = 2.0 * (a * t - b * sin(t));
+        double y = a - b * cos(t);
 
+        return std::make_pair(x, y);
+    });
+
+    DisplayFunction(v, -10e6, 10e5, 10e5, GL_LINE_LOOP);
 }
 
 // 2.2.4 Vali
 void Display7(){
+    vector<function<pair<double, double>(double)>> v;
+    v.push_back([](double t) {
+        double r = 0.3, R = 0.1;
+        double x = (R + r) * cos(r / R * t) - r * cos (t + r / R * t);
+        double y = (R + r) * sin(r / R * t) - r * sin (t + r / R * t);
 
+        return std::make_pair(x, y);
+    });
+    DisplayFunction(v, 0, 2*M_PI, 0.05, GL_LINE_LOOP);
 }
 
 // 2.2.5 Vali
 void Display8(){
+    vector<function<pair<double, double>(double)>> v;
+    v.push_back([](double t) {
+        double r = 0.3, R = 0.1;
+        double x = (R - r) * cos(r / R * t) - r * cos (t - r / R * t);
+        double y = (R - r) * sin(r / R * t) - r * sin (t - r / R * t);
 
+        return std::make_pair(x, y);
+    });
+    DisplayFunction(v, 0, 2*M_PI, 0.05, GL_LINE_LOOP);
 }
 
-// 3.1 Alex
+// 3.1 Vali
 void Display9(){
 
 }
 
-// 3.2 Vali
+// 3.2 Alex
 void Display10(){
+    vector<function<pair<double, double>(double)>> v;
+    v.push_back([](double t) {
+        double a = 0.4;
+        double r = a * sqrt(2 * cos(2 * t));
+        double x = r * cos(t);
+        double y = r * sin(t);
 
+        return std::make_pair(x, y);
+    });
+    v.push_back([](double t) {
+        double a = 0.4;
+        double r = -a * sqrt(2 * cos(2 * t));
+        double x = r * cos(t);
+        double y = r * sin(t);
+
+        return std::make_pair(x, y);
+    });
+    DisplayFunction(v, -M_PI_4, M_PI_4, 0.05, GL_LINE_LOOP);
 }
 
 void Init(void) {
