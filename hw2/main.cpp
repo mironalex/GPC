@@ -4,11 +4,14 @@
 #include <math.h>
 
 #include <GL/glut.h>
+#include <utility>
 
 // dimensiunea ferestrei in pixeli
 #define dim 300
 
 #define PI (4 * atan(1.0))
+
+using namespace std;
 
 unsigned char prevKey;
 
@@ -17,6 +20,14 @@ double function21(double x){
     else{
         return fabs(x - round(x))/x;
     }
+}
+
+pair<double,double> function22(double t, double a, double b){
+    pair<double, double> result;
+    result.first = (b + a * cos(t)) * cos(t);
+    result.second = (b + a * cos(t)) * sin(t);
+
+    return result;
 }
 
 // concoida lui Nicomede (concoida dreptei)
@@ -134,6 +145,36 @@ void Display3(){
 
 // 2.2.1 Alex
 void Display4(){
+    double ymax = -10e9;
+    double ymin = 10e9;
+    double xmax = -10e9;
+    double xmin = 10e9;
+    double a = 0.3;
+    double b = 0.2;
+    double ratia = 0.05;
+
+    //scalare?
+
+    for(double t = -PI; t < PI; t+= ratia){
+        pair<double, double> result = function22(t,a,b);
+        if(result.first < xmin) xmin = result.first;
+        if(result.first > xmax) xmax = result.first;
+        if(result.second < ymin) ymin = result.second;
+        if(result.second > ymax) ymax = result.second;
+    }
+
+    xmax = (fabs(xmax) > fabs(xmin)) ? fabs(xmax) : fabs(xmin);
+    ymax = (fabs(ymax) > fabs(ymin)) ? fabs(ymax) : fabs(ymin);
+
+
+    glColor3f(1.0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+
+    for(double t = -PI; t < PI; t+= ratia){
+        pair<double, double> result = function22(t,a,b);
+        glVertex2d(result.first / xmax, result.second / ymax);
+    }
+    glEnd();
 
 }
 
@@ -190,20 +231,28 @@ void Display(void) {
             break;
         case '3':
             Display3();
+            break;
         case '4':
             Display4();
+            break;
         case '5':
             Display5();
+            break;
         case '6':
             Display6();
+            break;
         case '7':
             Display7();
+            break;
         case '8':
             Display8();
+            break;
         case '9':
             Display9();
+            break;
         case '0':
             Display10();
+            break;
         default:
             break;
     }
