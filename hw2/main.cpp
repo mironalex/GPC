@@ -8,7 +8,16 @@
 // dimensiunea ferestrei in pixeli
 #define dim 300
 
+#define PI (4 * atan(1.0))
+
 unsigned char prevKey;
+
+double function21(double x){
+    if (x == 0) return 1;
+    else{
+        return fabs(x - round(x))/x;
+    }
+}
 
 // concoida lui Nicomede (concoida dreptei)
 // $x = a + b \cdot cos(t), y = a \cdot tg(t) + b \cdot sin(t)$. sau
@@ -17,7 +26,6 @@ unsigned char prevKey;
 void Display1() {
     double xmax, ymax, xmin, ymin;
     double a = 1, b = 2;
-    double pi = 4 * atan(1.0);
     double ratia = 0.05;
     double t;
 
@@ -26,7 +34,7 @@ void Display1() {
     xmax = a - b - 1;
     xmin = a + b + 1;
     ymax = ymin = 0;
-    for (t = - pi/2 + ratia; t < pi / 2; t += ratia) {
+    for (t = - PI/2 + ratia; t < PI / 2; t += ratia) {
         double x1, y1, x2, y2;
         x1 = a + b * cos(t);
         xmax = (xmax < x1) ? x1 : xmax;
@@ -51,19 +59,17 @@ void Display1() {
     // afisarea punctelor propriu-zise precedata de scalare
     glColor3f(1,0.1,0.1); // rosu
     glBegin(GL_LINE_STRIP);
-    for (t = - pi/2 + ratia; t < pi / 2; t += ratia) {
-        double x1, y1, x2, y2;
-        x1 = (a + b * cos(t)) / xmax;
-        x2 = (a - b * cos(t)) / xmax;
-        y1 = (a * tan(t) + b * sin(t)) / ymax;
-        y2 = (a * tan(t) - b * sin(t)) / ymax;
+    for (t = - PI/2 + ratia; t < PI / 2; t += ratia) {
+        double x, y;
+        x = (a + b * cos(t)) / xmax;
+        y = (a * tan(t) + b * sin(t)) / ymax;
 
-        glVertex2f(x1,y1);
+        glVertex2f(x,y);
     }
     glEnd();
 
     glBegin(GL_LINE_STRIP);
-    for (t = - pi/2 + ratia; t < pi / 2; t += ratia) {
+    for (t = - PI/2 + ratia; t < PI / 2; t += ratia) {
         double x1, y1, x2, y2;
         x1 = (a + b * cos(t)) / xmax;
         x2 = (a - b * cos(t)) / xmax;
@@ -91,7 +97,7 @@ void Display2() {
         x1 = x / xmax;
         y1 = (fabs(sin(x)) * exp(-sin(x))) / ymax;
 
-        glVertex2f(x1,y1);
+        glVertex2d(x1,y1);
     }
     glEnd();
 }
@@ -99,7 +105,30 @@ void Display2() {
 
 // 2.1 Alex
 void Display3(){
+    //""""""SCALARE"""""""""
+    double ymax = -10e9;
+    double ymin = 10e9;
+    double xmax = 30;
+    double ratia = 0.05;
 
+    for(double x = 0; x < 100; x += ratia){
+        double result = function21(x);
+        if (result > ymax) ymax = result;
+        if (result < ymin) ymin = result;
+    }
+
+    ymax = (fabs(ymax) > fabs(ymin)) ? fabs(ymax) : fabs(ymin);
+
+    glColor3f(1, 0.1, 0.1);
+    glBegin(GL_LINE_STRIP);
+
+    for(double x = 0; x < 100; x+= ratia){
+        double y;
+        y = function21(x) / ymax;
+
+        glVertex2d(x / xmax,y);
+    }
+    glEnd();
 }
 
 
