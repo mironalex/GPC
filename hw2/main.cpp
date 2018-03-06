@@ -180,11 +180,6 @@ void Display4() {
 
 }
 
-// 2.2.2 Alex
-void Display5() {
-
-}
-
 double max(std::vector<double> &d) {
     int max_idx = 0;
     for (int idx = 0; idx < d.size(); idx++) {
@@ -217,16 +212,18 @@ void normalize(std::vector<double> &x, double scale) {
 }
 
 void DisplayFunction(
-        vector<std::function<pair<double, double>(double)> > &funcs,
-        double domain_min,
-        double domain_max,
+        vector<tuple<std::function<pair<double, double>(double)>, double, double> > &funcs,
         double ratio,
         GLenum line_param,
         double scale_x,
         double scale_y) {
     vector<double> X, Y;
 
-    for (std::function<pair<double, double>(double)> func : funcs) {
+    for (auto data : funcs) {
+        std::function<pair<double, double>(double)> func;
+        double domain_min, domain_max;
+        tie(func, domain_min, domain_max) = data;
+
         double domain_x = domain_min;
         while (domain_x < domain_max) {
             double x, y;
@@ -248,50 +245,54 @@ void DisplayFunction(
     glEnd();
 }
 
+// 2.2.2 Alex
+void Display5() {
+}
+
 
 // 2.2.3 Vali
 void Display6() {
-    vector<function<pair<double, double>(double)>> v;
+    vector<tuple<function<pair<double, double>(double)>, double, double> > v;
     v.emplace_back([](double t) {
         double a = 0.1, b = 0.2;
         double x = a * t - b * sin(t);
         double y = a - b * cos(t);
 
         return std::make_pair(x, y);
-    });
+    }, -4*M_PI, 4*M_PI);
 
-    DisplayFunction(v, -4*M_PI, 4*M_PI, 0.05, GL_LINE_STRIP, 1.0, 0.5);
+    DisplayFunction(v, 0.05, GL_LINE_STRIP, 1.0, 0.5);
 }
 
 // 2.2.4 Vali
 void Display7() {
-    vector<function<pair<double, double>(double)>> v;
+    vector<tuple<function<pair<double, double>(double)>, double, double> >  v;
     v.emplace_back([](double t) {
         double r = 0.3, R = 0.1;
         double x = (R + r) * cos(r / R * t) - r * cos(t + r / R * t);
         double y = (R + r) * sin(r / R * t) - r * sin(t + r / R * t);
 
         return std::make_pair(x, y);
-    });
-    DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP, 1.0, 1.0);
+    }, 0, 2 * M_PI);
+    DisplayFunction(v, 0.05, GL_LINE_LOOP, 1.0, 1.0);
 }
 
 // 2.2.5 Vali
 void Display8() {
-    vector<function<pair<double, double>(double)>> v;
+    vector<tuple<function<pair<double, double>(double)>, double, double> >  v;
     v.emplace_back([](double t) {
         double r = 0.3, R = 0.1;
         double x = (R - r) * cos(r / R * t) - r * cos(t - r / R * t);
         double y = (R - r) * sin(r / R * t) - r * sin(t - r / R * t);
 
         return std::make_pair(x, y);
-    });
-    DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP, 1.0, 1.0);
+    }, 0, 2 * M_PI);
+    DisplayFunction(v, 0.05, GL_LINE_LOOP, 1.0, 1.0);
 }
 
 // 3.1 Alex
 void Display9() {
-    vector<function<pair<double, double>(double)>> v;
+    vector<tuple<function<pair<double, double>(double)>, double, double> > v;
     v.emplace_back([](double t) {
         double a = 0.02;
         double r = a * exp(1+t);
@@ -299,13 +300,13 @@ void Display9() {
         double y = r * sin(t);
 
         return std::make_pair(x, y);
-    });
-    DisplayFunction(v, 0, 2.2, 0.05, GL_LINE_STRIP, 0.9, 0.5);
+    }, 0, 2.2);
+    DisplayFunction(v, 0.05, GL_LINE_STRIP, 0.9, 0.5);
 }
 
 // 3.2 Alex
 void Display10() {
-    vector<function<pair<double, double>(double)>> v;
+    vector<tuple<function<pair<double, double>(double)>, double, double> >  v;
     v.emplace_back([](double t) {
         double a = 0.4;
         double r = a * sqrt(2 * cos(2 * t));
@@ -313,7 +314,7 @@ void Display10() {
         double y = r * sin(t);
 
         return std::make_pair(x, y);
-    });
+    }, -M_PI_4, M_PI_4);
     v.emplace_back([](double t) {
         double a = 0.4;
         double r = -a * sqrt(2 * cos(2 * t));
@@ -321,8 +322,8 @@ void Display10() {
         double y = r * sin(t);
 
         return std::make_pair(x, y);
-    });
-    DisplayFunction(v, -M_PI_4, M_PI_4, 0.05, GL_LINE_LOOP, 0.8, 0.8);
+    }, -M_PI_4, M_PI_4);
+    DisplayFunction(v, 0.05, GL_LINE_LOOP, 0.8, 0.8);
 }
 
 void Init(void) {
