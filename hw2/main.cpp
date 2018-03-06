@@ -300,7 +300,7 @@ void Display9() {
 
         return std::make_pair(x, y);
     });
-    DisplayFunction(v, 0, 2.2, 0.05, GL_LINE_STRIP, 0.8, 0.8);
+    DisplayFunction(v, 0, 2.2, 0.05, GL_LINE_STRIP, 0.9, 0.5);
 }
 
 // 3.2 Alex
