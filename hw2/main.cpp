@@ -250,21 +250,21 @@ void DisplayFunction(
 // 2.2.3 Vali
 void Display6() {
     vector<function<pair<double, double>(double)>> v;
-    v.push_back([](double t) {
+    v.emplace_back([](double t) {
         double a = 0.1, b = 0.2;
-        double x = 2.0 * (a * t - b * sin(t));
+        double x = a * t - b * sin(t);
         double y = a - b * cos(t);
 
         return std::make_pair(x, y);
     });
 
-    DisplayFunction(v, -10e6, 10e5, 10e5, GL_LINE_LOOP);
+    DisplayFunction(v, -4*M_PI, 4*M_PI, 0.05, GL_LINE_STRIP);
 }
 
 // 2.2.4 Vali
 void Display7() {
     vector<function<pair<double, double>(double)>> v;
-    v.push_back([](double t) {
+    v.emplace_back([](double t) {
         double r = 0.3, R = 0.1;
         double x = (R + r) * cos(r / R * t) - r * cos(t + r / R * t);
         double y = (R + r) * sin(r / R * t) - r * sin(t + r / R * t);
@@ -277,7 +277,7 @@ void Display7() {
 // 2.2.5 Vali
 void Display8() {
     vector<function<pair<double, double>(double)>> v;
-    v.push_back([](double t) {
+    v.emplace_back([](double t) {
         double r = 0.3, R = 0.1;
         double x = (R - r) * cos(r / R * t) - r * cos(t - r / R * t);
         double y = (R - r) * sin(r / R * t) - r * sin(t - r / R * t);
@@ -295,7 +295,7 @@ void Display9() {
 // 3.2 Alex
 void Display10() {
     vector<function<pair<double, double>(double)>> v;
-    v.push_back([](double t) {
+    v.emplace_back([](double t) {
         double a = 0.4;
         double r = a * sqrt(2 * cos(2 * t));
         double x = r * cos(t);
@@ -303,7 +303,7 @@ void Display10() {
 
         return std::make_pair(x, y);
     });
-    v.push_back([](double t) {
+    v.emplace_back([](double t) {
         double a = 0.4;
         double r = -a * sqrt(2 * cos(2 * t));
         double x = r * cos(t);
