@@ -17,14 +17,14 @@ using namespace std;
 
 unsigned char prevKey;
 
-double function21(double x){
+double function21(double x) {
     if (x == 0) return 1;
-    else{
-        return fabs(x - round(x))/x;
+    else {
+        return fabs(x - round(x)) / x;
     }
 }
 
-pair<double,double> function22(double t, double a, double b){
+pair<double, double> function22(double t, double a, double b) {
     pair<double, double> result;
     result.first = (b + a * cos(t)) * cos(t);
     result.second = (b + a * cos(t)) * sin(t);
@@ -47,7 +47,7 @@ void Display1() {
     xmax = a - b - 1;
     xmin = a + b + 1;
     ymax = ymin = 0;
-    for (t = - PI/2 + ratia; t < PI / 2; t += ratia) {
+    for (t = -PI / 2 + ratia; t < PI / 2; t += ratia) {
         double x1, y1, x2, y2;
         x1 = a + b * cos(t);
         xmax = (xmax < x1) ? x1 : xmax;
@@ -70,26 +70,26 @@ void Display1() {
     ymax = (fabs(ymax) > fabs(ymin)) ? fabs(ymax) : fabs(ymin);
 
     // afisarea punctelor propriu-zise precedata de scalare
-    glColor3f(1,0.1,0.1); // rosu
+    glColor3f(1, 0.1, 0.1); // rosu
     glBegin(GL_LINE_STRIP);
-    for (t = - PI/2 + ratia; t < PI / 2; t += ratia) {
+    for (t = -PI / 2 + ratia; t < PI / 2; t += ratia) {
         double x, y;
         x = (a + b * cos(t)) / xmax;
         y = (a * tan(t) + b * sin(t)) / ymax;
 
-        glVertex2f(x,y);
+        glVertex2f(x, y);
     }
     glEnd();
 
     glBegin(GL_LINE_STRIP);
-    for (t = - PI/2 + ratia; t < PI / 2; t += ratia) {
+    for (t = -PI / 2 + ratia; t < PI / 2; t += ratia) {
         double x1, y1, x2, y2;
         x1 = (a + b * cos(t)) / xmax;
         x2 = (a - b * cos(t)) / xmax;
         y1 = (a * tan(t) + b * sin(t)) / ymax;
         y2 = (a * tan(t) - b * sin(t)) / ymax;
 
-        glVertex2f(x2,y2);
+        glVertex2f(x2, y2);
     }
     glEnd();
 }
@@ -103,28 +103,28 @@ void Display2() {
     double ratia = 0.05;
 
     // afisarea punctelor propriu-zise precedata de scalare
-    glColor3f(1,0.1,0.1); // rosu
+    glColor3f(1, 0.1, 0.1); // rosu
     glBegin(GL_LINE_STRIP);
     for (double x = 0; x < xmax; x += ratia) {
         double x1, y1;
         x1 = x / xmax;
         y1 = (fabs(sin(x)) * exp(-sin(x))) / ymax;
 
-        glVertex2d(x1,y1);
+        glVertex2d(x1, y1);
     }
     glEnd();
 }
 
 
 // 2.1 Alex
-void Display3(){
+void Display3() {
     //""""""SCALARE"""""""""
     double ymax = -10e9;
     double ymin = 10e9;
     double xmax = 30;
     double ratia = 0.05;
 
-    for(double x = 0; x < 100; x += ratia){
+    for (double x = 0; x < 100; x += ratia) {
         double result = function21(x);
         if (result > ymax) ymax = result;
         if (result < ymin) ymin = result;
@@ -135,18 +135,18 @@ void Display3(){
     glColor3f(1, 0.1, 0.1);
     glBegin(GL_LINE_STRIP);
 
-    for(double x = 0; x < 100; x+= ratia){
+    for (double x = 0; x < 100; x += ratia) {
         double y;
         y = function21(x) / ymax;
 
-        glVertex2d(x / xmax,y);
+        glVertex2d(x / xmax, y);
     }
     glEnd();
 }
 
 
 // 2.2.1 Alex
-void Display4(){
+void Display4() {
     double ymax = -10e9;
     double ymin = 10e9;
     double xmax = -10e9;
@@ -157,12 +157,12 @@ void Display4(){
 
     //scalare?
 
-    for(double t = -PI; t < PI; t+= ratia){
-        pair<double, double> result = function22(t,a,b);
-        if(result.first < xmin) xmin = result.first;
-        if(result.first > xmax) xmax = result.first;
-        if(result.second < ymin) ymin = result.second;
-        if(result.second > ymax) ymax = result.second;
+    for (double t = -PI; t < PI; t += ratia) {
+        pair<double, double> result = function22(t, a, b);
+        if (result.first < xmin) xmin = result.first;
+        if (result.first > xmax) xmax = result.first;
+        if (result.second < ymin) ymin = result.second;
+        if (result.second > ymax) ymax = result.second;
     }
 
     xmax = (fabs(xmax) > fabs(xmin)) ? fabs(xmax) : fabs(xmin);
@@ -172,8 +172,8 @@ void Display4(){
     glColor3f(1.0, 0, 0);
     glBegin(GL_LINE_LOOP);
 
-    for(double t = -PI; t < PI; t+= ratia){
-        pair<double, double> result = function22(t,a,b);
+    for (double t = -PI; t < PI; t += ratia) {
+        pair<double, double> result = function22(t, a, b);
         glVertex2d(result.first / xmax, result.second / ymax);
     }
     glEnd();
@@ -181,13 +181,13 @@ void Display4(){
 }
 
 // 2.2.2 Alex
-void Display5(){
+void Display5() {
 
 }
 
-double max(std::vector<double> &d){
+double max(std::vector<double> &d) {
     int max_idx = 0;
-    for(int idx = 0; idx < d.size(); idx++) {
+    for (int idx = 0; idx < d.size(); idx++) {
         if (d[idx] > d[max_idx]) {
             max_idx = idx;
         }
@@ -195,9 +195,9 @@ double max(std::vector<double> &d){
     return d[max_idx];
 }
 
-double min(std::vector<double> &d){
+double min(std::vector<double> &d) {
     int min_idx = 0;
-    for(int idx = 0; idx < d.size(); idx++) {
+    for (int idx = 0; idx < d.size(); idx++) {
         if (d[idx] < d[min_idx]) {
             min_idx = idx;
         }
@@ -211,7 +211,7 @@ void normalize(std::vector<double> &x) {
     double scale = (x_max - x_min) / 2.0;
     double offset = (x_max + x_min) / 2.0;
 
-    for(int idx = 0; idx < x.size(); idx++) {
+    for (int idx = 0; idx < x.size(); idx++) {
         x[idx] = (x[idx] - offset) / scale;
     }
 }
@@ -224,7 +224,7 @@ void DisplayFunction(
         GLenum line_param) {
     vector<double> X, Y;
 
-    for(std::function<pair<double, double>(double)> func : funcs) {
+    for (std::function<pair<double, double>(double)> func : funcs) {
         double domain_x = domain_min;
         while (domain_x < domain_max) {
             double x, y;
@@ -240,7 +240,7 @@ void DisplayFunction(
 
     glColor3f(1.0, 0, 0);
     glBegin(line_param);
-    for(int idx = 0; idx < X.size(); idx++){
+    for (int idx = 0; idx < X.size(); idx++) {
         glVertex2d(X[idx], Y[idx]);
     }
     glEnd();
@@ -248,7 +248,7 @@ void DisplayFunction(
 
 
 // 2.2.3 Vali
-void Display6(){
+void Display6() {
     vector<function<pair<double, double>(double)>> v;
     v.push_back([](double t) {
         double a = 0.1, b = 0.2;
@@ -262,38 +262,38 @@ void Display6(){
 }
 
 // 2.2.4 Vali
-void Display7(){
+void Display7() {
     vector<function<pair<double, double>(double)>> v;
     v.push_back([](double t) {
         double r = 0.3, R = 0.1;
-        double x = (R + r) * cos(r / R * t) - r * cos (t + r / R * t);
-        double y = (R + r) * sin(r / R * t) - r * sin (t + r / R * t);
+        double x = (R + r) * cos(r / R * t) - r * cos(t + r / R * t);
+        double y = (R + r) * sin(r / R * t) - r * sin(t + r / R * t);
 
         return std::make_pair(x, y);
     });
-    DisplayFunction(v, 0, 2*M_PI, 0.05, GL_LINE_LOOP);
+    DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP);
 }
 
 // 2.2.5 Vali
-void Display8(){
+void Display8() {
     vector<function<pair<double, double>(double)>> v;
     v.push_back([](double t) {
         double r = 0.3, R = 0.1;
-        double x = (R - r) * cos(r / R * t) - r * cos (t - r / R * t);
-        double y = (R - r) * sin(r / R * t) - r * sin (t - r / R * t);
+        double x = (R - r) * cos(r / R * t) - r * cos(t - r / R * t);
+        double y = (R - r) * sin(r / R * t) - r * sin(t - r / R * t);
 
         return std::make_pair(x, y);
     });
-    DisplayFunction(v, 0, 2*M_PI, 0.05, GL_LINE_LOOP);
+    DisplayFunction(v, 0, 2 * M_PI, 0.05, GL_LINE_LOOP);
 }
 
 // 3.1 Vali
-void Display9(){
+void Display9() {
 
 }
 
 // 3.2 Alex
-void Display10(){
+void Display10() {
     vector<function<pair<double, double>(double)>> v;
     v.push_back([](double t) {
         double a = 0.4;
@@ -316,7 +316,7 @@ void Display10(){
 
 void Init(void) {
 
-    glClearColor(1.0,1.0,1.0,1.0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
 
     glLineWidth(1);
 
@@ -328,7 +328,7 @@ void Init(void) {
 void Display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    switch(prevKey) {
+    switch (prevKey) {
         case '1':
             Display1();
             break;
@@ -380,7 +380,7 @@ void KeyboardFunc(unsigned char key, int x, int y) {
 void MouseFunc(int button, int state, int x, int y) {
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 
     glutInit(&argc, argv);
 
@@ -388,9 +388,9 @@ int main(int argc, char** argv) {
 
     glutInitWindowPosition(100, 100);
 
-    glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
-    glutCreateWindow (argv[0]);
+    glutCreateWindow(argv[0]);
 
     Init();
 
