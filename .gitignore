@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# CLion Project files
+*.idea
+cmake-*
