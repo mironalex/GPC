@@ -692,6 +692,25 @@ void Display6() {
     nivel++;
 }
 
+//Multimea Mandlebrot -> Vali
+void Display7(){
+
+}
+
+//Turtle 1 -> Alex
+void Display8(){
+
+}
+
+//Turtle 2 -> Alex
+void Display9(){
+
+}
+
+//Turtle 3 -> Vali
+void Display10(){
+
+}
 
 
 void Init(void) {
@@ -705,7 +724,35 @@ void Init(void) {
     glPolygonMode(GL_FRONT, GL_LINE);
 }
 
-void Display(void) {
+void DisplaySolutions(void){
+    switch(prevKey){
+        case '0':
+            glClear(GL_COLOR_BUFFER_BIT);
+            nivel = 0;
+            fprintf(stderr, "nivel = %d\n", nivel);
+        case '1':
+            glClear(GL_COLOR_BUFFER_BIT);
+            Display7();
+            break;
+        case '2':
+            glClear(GL_COLOR_BUFFER_BIT);
+            Display8();
+            break;
+        case '3':
+            glClear(GL_COLOR_BUFFER_BIT);
+            Display9();
+            break;
+        case '4':
+            glClear(GL_COLOR_BUFFER_BIT);
+            Display10();
+            break;
+        default:
+            break;
+    }
+    glFlush();
+}
+
+void DisplayExamples(void) {
     switch(prevKey) {
         case '0':
             glClear(GL_COLOR_BUFFER_BIT);
@@ -742,6 +789,8 @@ void Display(void) {
     glFlush();
 }
 
+
+
 void Reshape(int w, int h) {
     glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 }
@@ -776,7 +825,7 @@ int main(int argc, char** argv) {
 
     glutMouseFunc(MouseFunc);
 
-    glutDisplayFunc(Display);
+    glutDisplayFunc(DisplayExamples);
 
     glutMainLoop();
 
