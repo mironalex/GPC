@@ -359,6 +359,41 @@ private:
     }
 };
 
+class Turtle1{
+public:
+    void patrat(double lungime, CPunct &p, CVector &v){
+        for(int i = 0; i < 4; i++){
+            v.deseneaza(p,0.5);
+            p = v.getDest(p, 0.5);
+            v.rotatie(-90);
+        }
+    }
+    void fractal(double lungime, int nivel, CPunct &p, CVector &v)
+    {
+        if (nivel == 0)
+        {
+            patrat(lungime,p,v);
+        }
+        else
+        {
+            CVector v2(0.1, 0);
+            CPunct p2(-0.3 - (0.3 * nivel) , 0.3 + (0.3 * nivel));
+            patrat(lungime/3, p2, v2);
+
+            fractal(lungime, nivel - 1, p2, v2);
+        }
+    }
+
+    void afisare(double lungime, int nivel)
+    {
+        CVector v(0.30, 0);
+        CPunct p(-0.30, 0.30);
+
+        fractal(1, nivel, p, v);
+    }
+};
+
+
 class CCurbaKoch
 {
 public:
@@ -796,7 +831,32 @@ void Display7(){
 
 //Turtle 1 -> Alex
 void Display8(){
+    Turtle1 turtle;
+    turtle.afisare(0.05, nivel);
 
+    char c[3];
+    sprintf(c, "%2d", nivel);
+    glRasterPos2d(-0.98,-0.98);
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'N');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'i');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'v');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'e');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'l');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, '=');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c[0]);
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c[1]);
+
+    glRasterPos2d(-1.0,-0.9);
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'T');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'u');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'r');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 't');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'l');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'e');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ' ');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, '1');
+
+    nivel++;
 }
 
 //Turtle 2 -> Alex
