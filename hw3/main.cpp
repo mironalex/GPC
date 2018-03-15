@@ -359,35 +359,40 @@ private:
 
 class Turtle1{
 public:
-    void patrat(double lungime, CPunct &p, CVector &v){
+    void patrat(double lungime, double x, double y){
+        CVector v = CVector(1.0,0);
+        CPunct p = CPunct(x,y);
         for(int i = 0; i < 4; i++){
-            v.deseneaza(p,0.5);
-            p = v.getDest(p, 0.5);
-            v.rotatie(-90);
+            v.deseneaza(p,lungime);
+            p = v.getDest(p, lungime);
+            v.rotatie(90);
         }
     }
-    void fractal(double lungime, int nivel, CPunct &p, CVector &v)
+    void fractal(double lungime, int nivel, double x, double y)
     {
         if (nivel == 0)
         {
-            patrat(lungime,p,v);
+            patrat(2, -1,)
         }
         else
         {
-            CVector v2(0.1, 0);
-            CPunct p2(-0.3 - (0.3 * nivel) , 0.3 + (0.3 * nivel));
-            patrat(lungime/3, p2, v2);
+            fractal(lungime/3, nivel - 1, x, y);
+            fractal(lungime/3, nivel - 1, x+lungime/3, y);
+            fractal(lungime/3, nivel - 1, x+(2*lungime/3), y);
+            fractal(lungime/3, nivel - 1, x, y+lungime/3);
+            patrat(lungime/3, x+lungime/3, y+lungime/3);
+            fractal(lungime/3, nivel - 1, x+(2*lungime/3), y+lungime/3);
+            fractal(lungime/3, nivel - 1, x, y+(2*lungime/3));
+            fractal(lungime/3, nivel - 1, x+lungime/3, y+(2*lungime/3));
+            fractal(lungime/3, nivel - 1, x+(2*lungime/3), y+(2*lungime/3));
 
-            fractal(lungime, nivel - 1, p2, v2);
         }
     }
 
     void afisare(double lungime, int nivel)
     {
-        CVector v(0.30, 0);
-        CPunct p(-0.30, 0.30);
-
-        fractal(1, nivel, p, v);
+        CVector v(1, 0);
+        fractal(2, nivel, -1, -1);
     }
 };
 
@@ -762,9 +767,71 @@ void Display8(){
     nivel++;
 }
 
+class Turtle2
+{
+public:
+    void arboreTurtle2(double lungime,
+                       int nivel,
+                       double factordiviziune,
+                       CPunct p,
+                       CVector v)
+    {
+        assert(factordiviziune != 0);
+        CPunct p1, p2;
+        if (nivel == 0)
+        {
+        }
+        else
+        {
+            v.rotatie(30);
+            v.deseneaza(p, lungime);
+            p1 = v.getDest(p, lungime);
+            arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
+
+            v.rotatie(-90);
+            v.deseneaza(p, lungime);
+            p1 = v.getDest(p, lungime);
+            p2 = p1;
+
+            v.rotatie(-30);
+            v.deseneaza(p1, lungime);
+            p1 = v.getDest(p1, lungime);
+            arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
+
+            p1 = p2;
+            v.rotatie(90);
+            v.deseneaza(p1, lungime);
+            p1 = v.getDest(p1, lungime);
+            p2 = p1;
+
+            v.rotatie(30);
+            v.deseneaza(p1, lungime);
+            p1 = v.getDest(p1, lungime);
+            arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
+
+            p1 = p2;
+            v.rotatie(-90);
+            v.deseneaza(p1, lungime);
+            p1 = v.getDest(p1, lungime);
+            arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
+        }
+    }
+
+    void afisare(double lungime, int nivel)
+    {
+        CVector v(0.0, 1.0);
+        CPunct p(0.0, -1.0);
+
+        v.deseneaza(p, 0.25);
+        p = v.getDest(p, 0.25);
+        arboreTurtle2(lungime, nivel, 0.4, p, v);
+    }
+};
+
+
 //Turtle 2 -> Alex
 void Display9(){
-
+    
 }
 
 //Turtle 3 -> Vali
