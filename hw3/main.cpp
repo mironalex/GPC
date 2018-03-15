@@ -5,6 +5,8 @@
 #include <cfloat>
 
 #include <GL/glut.h>
+#include <utility>
+#include <vector>
 
 // dimensiunea ferestrei in pixeli
 #define dim 300
@@ -692,9 +694,104 @@ void Display6() {
     nivel++;
 }
 
+double max(std::vector<double> &d) {
+    int max_idx = 0;
+    for (int idx = 0; idx < d.size(); idx++) {
+        if (d[idx] > d[max_idx]) {
+            max_idx = idx;
+        }
+    }
+    return d[max_idx];
+}
+
+double min(std::vector<double> &d) {
+    int min_idx = 0;
+    for (int idx = 0; idx < d.size(); idx++) {
+        if (d[idx] < d[min_idx]) {
+            min_idx = idx;
+        }
+    }
+    return d[min_idx];
+}
+
+void normalize(std::vector<double> &x, double scale) {
+    double x_min = min(x);
+    double x_max = max(x);
+    double norm_factor = (x_max - x_min) / 2.0;
+    double offset = (x_max + x_min) / 2.0;
+
+    for (double &idx : x) {
+        idx = scale * (idx - offset) / norm_factor;
+    }
+}
+
+double normalize_single(double point,
+                        double min,
+                        double max,
+                        double interval_min,
+                        double interval_max) {
+
+    double normalized_point = (point - min) / (max - min);
+    return interval_min + (interval_max - interval_min) * normalized_point;
+}
+
+std::pair<double, double> normalize(
+    std::pair<double, double> point,
+    std::pair<double, double> limx,
+    std::pair<double, double> limy,
+    std::pair<double, double> normalization_interval) {
+    return std::make_pair(
+            normalize_single(point.first, limx.first, limx.second,
+                             normalization_interval.first, normalization_interval.second),
+        normalize_single(point.second, limy.first, limy.second,
+                         normalization_interval.first, normalization_interval.second)
+    );
+}
+
 //Multimea Mandlebrot -> Vali
 void Display7(){
+    int nivel = 30;
+    double d = 0.005;
 
+    std::vector<double> pixels_x, pixels_y;
+    for (double r = -1; r <= 1; r+=d) {
+        for (double c = -1; c <= 1; c+=d) {
+            auto viewport_point = std::make_pair(r, c);
+            double x = normalize_single(
+                    viewport_point.first,
+                    -1, 1,
+                    -2, 1
+            );
+
+            auto o = std::make_pair(
+                    x,
+                    viewport_point.second
+            );
+
+            auto v = std::make_pair(0.0, 0.0);
+            int level = 0;
+            while (v.first * v.first + v.second * v.second <= 4.0 && level < nivel) {
+                double x = v.first * v.first - v.second * v.second + o.first;
+                v.second = 2.0 * v.first * v.second + o.second;
+                v.first = x;
+
+                level++;
+            }
+
+            if (level >= nivel) {
+
+                pixels_x.push_back(viewport_point.first);
+                pixels_y.push_back(viewport_point.second);
+            }
+        }
+    }
+
+    glColor3d(1.0, 0.0, 0.0);
+    glBegin(GL_POINTS);
+    for(int idx = 0; idx < pixels_x.size(); idx++) {
+        glVertex2f(pixels_x[idx], pixels_y[idx]);
+    }
+    glEnd();
 }
 
 //Turtle 1 -> Alex
@@ -825,7 +922,7 @@ int main(int argc, char** argv) {
 
     glutMouseFunc(MouseFunc);
 
-    glutDisplayFunc(DisplayExamples);
+    glutDisplayFunc(DisplaySolutions);
 
     glutMainLoop();
 
