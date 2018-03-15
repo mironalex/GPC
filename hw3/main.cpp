@@ -374,7 +374,7 @@ public:
     {
         if (nivel == 0)
         {
-            patrat(2, -1,)
+            patrat(1.98, -0.99, -0.99);
         }
         else
         {
@@ -881,44 +881,49 @@ public:
         }
         else
         {
-            v.rotatie(30);
+            v.rotatie(-45);
             v.deseneaza(p, lungime);
             p1 = v.getDest(p, lungime);
             arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
 
-            v.rotatie(-90);
-            v.deseneaza(p, lungime);
-            p1 = v.getDest(p, lungime);
-            p2 = p1;
-
-            v.rotatie(-30);
-            v.deseneaza(p1, lungime);
-            p1 = v.getDest(p1, lungime);
-            arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
-
-            p1 = p2;
             v.rotatie(90);
-            v.deseneaza(p1, lungime);
-            p1 = v.getDest(p1, lungime);
-            p2 = p1;
+            v.deseneaza(p, lungime);
+            p1 = v.getDest(p, lungime);
 
-            v.rotatie(30);
+
+            v.rotatie(-45);
             v.deseneaza(p1, lungime);
+            CPunct p3 = p1;
             p1 = v.getDest(p1, lungime);
-            arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
+            //arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
+
+            v.rotatie(-90);
+            v.deseneaza(p1, lungime / 2);
+            p2 = p1;
+            p1 = v.getDest(p1, lungime / 2);
+            arboreTurtle2(lungime * factordiviziune, nivel -1, factordiviziune, p1, v);
 
             p1 = p2;
-            v.rotatie(-90);
+            v.rotatie(120);
+            v.deseneaza(p1, lungime / 2 );
+            p1 = v.getDest(p1, lungime / 2);
+            arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
+
+
+
+            p1 = p3;
+            v.rotatie(25);
             v.deseneaza(p1, lungime);
             p1 = v.getDest(p1, lungime);
             arboreTurtle2(lungime * factordiviziune, nivel - 1, factordiviziune, p1, v);
+
         }
     }
 
     void afisare(double lungime, int nivel)
     {
-        CVector v(0.0, 1.0);
-        CPunct p(0.0, -1.0);
+        CVector v(0.0, -1.0);
+        CPunct p(0.0, 1.0);
 
         v.deseneaza(p, 0.25);
         p = v.getDest(p, 0.25);
@@ -929,7 +934,44 @@ public:
 
 //Turtle 2 -> Alex
 void Display9(){
-    
+    Turtle2 turtle;
+
+    char c[3];
+    sprintf(c, "%2d", nivel);
+    glRasterPos2d(-0.98,-0.98);
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'N');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'i');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'v');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'e');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'l');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, '=');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c[0]);
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, c[1]);
+
+    glRasterPos2d(-1.0,-0.9);
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'a');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'r');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'b');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'o');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'r');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'e');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ' ');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 't');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'u');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'r');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 't');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'l');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'e');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ' ');
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, '2');
+
+    glPushMatrix();
+    glLoadIdentity();
+    glScaled(0.4, 0.4, 1);
+    glTranslated(-0.5, 1, 0.0);
+    turtle.afisare(1, nivel);
+    glPopMatrix();
+    nivel++;
 }
 
 void EasterEgg(CPunct &origin, CVector &cVector, double lungime, int nivel) {
