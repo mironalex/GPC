@@ -788,7 +788,7 @@ void Display7(){
     int nivel = 30;
     double d = 0.005;
 
-    std::vector<double> pixels_x, pixels_y;
+    glBegin(GL_POINTS);
     for (double r = -1; r <= 1; r+=d) {
         for (double c = -1; c <= 1; c+=d) {
             auto viewport_point = std::make_pair(r, c);
@@ -814,17 +814,18 @@ void Display7(){
             }
 
             if (level >= nivel) {
-
-                pixels_x.push_back(viewport_point.first);
-                pixels_y.push_back(viewport_point.second);
+                glColor3d(1.0, 0.0, 0.0);
+                glVertex2d(viewport_point.first, viewport_point.second);
+            }
+            else {
+                double interpolation_factor = 0;
+                if (level > nivel / 3) {
+                    interpolation_factor = (double)level * (0.3 / nivel);
+                }
+                glColor3d(1.0, 1.0 - interpolation_factor, 1.0 - interpolation_factor);
+                glVertex2d(viewport_point.first, viewport_point.second);
             }
         }
-    }
-
-    glColor3d(1.0, 0.0, 0.0);
-    glBegin(GL_POINTS);
-    for(int idx = 0; idx < pixels_x.size(); idx++) {
-        glVertex2f(pixels_x[idx], pixels_y[idx]);
     }
     glEnd();
 }
