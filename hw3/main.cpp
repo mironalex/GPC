@@ -864,9 +864,69 @@ void Display9(){
 
 }
 
+void EasterEgg(CPunct &origin, CVector &cVector, double lungime, int nivel) {
+    if(nivel == 0) {
+        cVector.deseneaza(origin, lungime);
+        origin = cVector.getDest(origin, lungime);
+        return;
+    }
+
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+    cVector.rotatie(-60);
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+    cVector.rotatie(-60);
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+    cVector.rotatie(60);
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+    cVector.rotatie(60);
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+    cVector.rotatie(60);
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+    cVector.rotatie(60);
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+    cVector.rotatie(-60);
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+    cVector.rotatie(-60);
+    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
+}
+
+void DrawImage2(CPunct &origin, CVector &cVector, double lungime, int nivel, int direction) {
+    if(nivel == 0) {
+        cVector.deseneaza(origin, lungime);
+        origin = cVector.getDest(origin, lungime);
+        return;
+    }
+
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction);
+    cVector.rotatie(60 * direction);
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction * -1);
+    cVector.rotatie(60 * direction);
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction);
+    cVector.rotatie(-60 * direction);
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction * -1);
+    cVector.rotatie(-60 * direction);
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction);
+    cVector.rotatie(-60 * direction);
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction * -1);
+    cVector.rotatie(-60 * direction);
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction);
+    cVector.rotatie(60 * direction);
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction * -1);
+    cVector.rotatie(60 * direction);
+    DrawImage2(origin, cVector, lungime / 4.0, nivel - 1, direction);
+}
+
 //Turtle 3 -> Vali
 void Display10(){
+    CPunct mamaLuiAlex(-1.0, -1.0);
+    CVector direction(0.0, 2.0);
+    double lungime = 2.0;
 
+    glBegin(GL_LINE);
+    DrawImage2(mamaLuiAlex, direction, lungime, nivel, -1);
+    glEnd();
+
+    nivel++;
 }
 
 
