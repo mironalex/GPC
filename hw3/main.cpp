@@ -294,17 +294,6 @@ double min(std::vector<double> &d) {
     return d[min_idx];
 }
 
-void normalize(std::vector<double> &x, double scale) {
-    double x_min = min(x);
-    double x_max = max(x);
-    double norm_factor = (x_max - x_min) / 2.0;
-    double offset = (x_max + x_min) / 2.0;
-
-    for (double &idx : x) {
-        idx = scale * (idx - offset) / norm_factor;
-    }
-}
-
 double normalize_single(double point,
                         double min,
                         double max,
@@ -330,12 +319,13 @@ std::pair<double, double> normalize(
 
 //Multimea Mandlebrot -> Vali
 void Display7(){
-    int nivel = 30;
-    double d = 0.005;
+    int nivel_mandelbrot = 20 + nivel;
+    double dx = 0.001;
+    double dy = 0.0025;
 
     glBegin(GL_POINTS);
-    for (double r = -1; r <= 1; r+=d) {
-        for (double c = -1; c <= 1; c+=d) {
+    for (double r = -1; r <= 1; r+=dx) {
+        for (double c = -1; c <= 1; c+=dy) {
             auto viewport_point = std::make_pair(r, c);
             double x = normalize_single(
                     viewport_point.first,
@@ -350,29 +340,31 @@ void Display7(){
 
             auto v = std::make_pair(0.0, 0.0);
             int level = 0;
-            while (v.first * v.first + v.second * v.second <= 4.0 && level < nivel) {
-                double x = v.first * v.first - v.second * v.second + o.first;
+            while (v.first * v.first + v.second * v.second <= 4.0 && level < nivel_mandelbrot) {
+                double v_x = v.first * v.first - v.second * v.second + o.first;
                 v.second = 2.0 * v.first * v.second + o.second;
-                v.first = x;
+                v.first = v_x;
 
                 level++;
             }
 
-            if (level >= nivel) {
-                glColor3d(1.0, 0.0, 0.0);
-                glVertex2d(viewport_point.first, viewport_point.second);
+            double color = (double)level / nivel_mandelbrot;
+            if (color > 0.95) {
+                glColor3d(1.0, 1.0 - color, 1.0 - color);
+            }
+            else if (color > 0.85) {
+                glColor3d(1.0 - color, 1.0 - color, 1.0 - color);
             }
             else {
-                double interpolation_factor = 0;
-                if (level > nivel / 3) {
-                    interpolation_factor = (double)level * (0.3 / nivel);
-                }
-                glColor3d(1.0, 1.0 - interpolation_factor, 1.0 - interpolation_factor);
-                glVertex2d(viewport_point.first, viewport_point.second);
+                glColor3d(1.0, 1.0 - color / 2.5, 1.0 - color / 2.5);
             }
+
+            glVertex2d(viewport_point.first, viewport_point.second);
         }
     }
     glEnd();
+
+    nivel++;
 }
 
 //Turtle 1 -> Alex
@@ -512,32 +504,6 @@ void Display9(){
     turtle.afisare(1, nivel);
     glPopMatrix();
     nivel++;
-}
-
-void EasterEgg(CPunct &origin, CVector &cVector, double lungime, int nivel) {
-    if(nivel == 0) {
-        cVector.deseneaza(origin, lungime);
-        origin = cVector.getDest(origin, lungime);
-        return;
-    }
-
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
-    cVector.rotatie(-60);
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
-    cVector.rotatie(-60);
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
-    cVector.rotatie(60);
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
-    cVector.rotatie(60);
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
-    cVector.rotatie(60);
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
-    cVector.rotatie(60);
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
-    cVector.rotatie(-60);
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
-    cVector.rotatie(-60);
-    EasterEgg(origin, cVector, lungime / 4.0, nivel - 1);
 }
 
 void DrawImage2(CPunct &origin, CVector &cVector, double lungime, int nivel, int direction) {
