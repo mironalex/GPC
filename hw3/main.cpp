@@ -25,6 +25,10 @@ class Grid {
         return viewport_offset + quotent * viewport_grid_size;
     }
 
+    void DrawLine(int start_x, int start_y, int end_x, int end_y) {
+
+    }
+
 public:
     void writePixel(int x, int y) {
         double viewport_x, viewport_y;
@@ -78,7 +82,9 @@ public:
     }
 
     void DrawLineOnSelf(int start_x, int start_y, int end_x, int end_y) {
-        int dx = 2, dy = 3;
+        this->DrawLine(start_x, start_y, end_x, end_y);
+
+        int dx = end_x - start_x, dy = end_y - start_y;
 
         int d = 2 * dy - dx;
         int dE = 2 * dy;
@@ -157,10 +163,10 @@ void Init(void) {
 
 void DisplaySolutions(void){
     glClear(GL_COLOR_BUFFER_BIT);
-    Grid *g = new Grid(20, 20, -0.98, -0.98, 1.96, 1.96);
+    Grid *g = new Grid(15, 15, -0.98, -0.98, 1.96, 1.96);
 
     g->DrawSelf();
-    g->DrawLineOnSelf(15, 15, 10, 10);
+    g->DrawLineOnSelf(0, 0, 15, 7);
     g->writePixel(0, 0);
     glFlush();
 }
