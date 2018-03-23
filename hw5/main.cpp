@@ -320,8 +320,8 @@ std::pair<double, double> normalize(
 //Multimea Mandlebrot -> Vali
 void Display7(){
     int nivel_mandelbrot = 20 + nivel;
-    double dx = 0.001;
-    double dy = 0.0025;
+    double dx = 0.0004;
+    double dy = 0.0018;
 
     glBegin(GL_POINTS);
     for (double r = -1; r <= 1; r+=dx) {
@@ -349,14 +349,19 @@ void Display7(){
             }
 
             double color = (double)level / nivel_mandelbrot;
-            if (color > 0.95) {
-                glColor3d(1.0, 1.0 - color, 1.0 - color);
-            }
-            else if (color > 0.85) {
+            double prag1 = 0.95;
+            double prag2 = 0.5;
+            if (color > prag1) {
                 glColor3d(1.0 - color, 1.0 - color, 1.0 - color);
             }
+            else if (color > prag2) {
+                color = (color - prag2) / (prag1 - prag2);
+                double next = 0.3 + prag2 / 2.0;
+
+                glColor3d(color, color, next + color * (1 - next));
+            }
             else {
-                glColor3d(1.0, 1.0 - color / 2.5, 1.0 - color / 2.5);
+                glColor3d(0.0, 0.0, 0.3 + color / 2.0);
             }
 
             glVertex2d(viewport_point.first, viewport_point.second);
