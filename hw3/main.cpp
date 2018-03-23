@@ -31,8 +31,8 @@ public:
         std::tie(viewport_x, viewport_y) = this->GetViewportFromInteger(x, y);
 
 
-        int triangleAmount = 500;
-        double radius = 0.04;
+        int triangleAmount = 50;
+        double radius = 0.05;
 
         //glEnable(GL_LINE_SMOOTH);
         glLineWidth(2.0);
