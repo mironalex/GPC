@@ -4,10 +4,10 @@
 #include <utility>
 #include <vector>
 #include <tuple>
+#include <cmath>
 
 // dimensiunea ferestrei in pixeli
 #define dim 300
-
 
 class Grid {
     int num_lines_;
@@ -25,18 +25,28 @@ class Grid {
         return viewport_offset + quotent * viewport_grid_size;
     }
 
-    void DrawCircle(int x, int y) {
+public:
+    void writePixel(int x, int y) {
         double viewport_x, viewport_y;
         std::tie(viewport_x, viewport_y) = this->GetViewportFromInteger(x, y);
 
-        // TODO: Draw the circle here -> Alex
-        glPointSize(2);
-        glBegin(GL_POINTS);
-        glVertex2d(viewport_x, viewport_y);
+
+        int triangleAmount = 500;
+        double radius = 0.04;
+
+        //glEnable(GL_LINE_SMOOTH);
+        glLineWidth(2.0);
+
+        glBegin(GL_LINES);
+        for(int i = 0; i <= triangleAmount; i++)
+        {
+            glVertex2d(viewport_x, viewport_y);
+            glVertex2d(viewport_x + (radius * cos(i * 2*M_PI / triangleAmount)),
+                       viewport_y + (radius * sin(i * 2*M_PI / triangleAmount)));
+        }
         glEnd();
     }
 
-public:
     std::pair<double, double> GetViewportFromInteger(int x, int y) {
         double viewport_x = GetViewportCoordOnGrid(
                 this->num_lines_,
@@ -75,7 +85,7 @@ public:
         int dNE = 2 * (dy - dx);
         int x = start_x, y = start_y;
 
-        this->DrawCircle(x, y);
+        this->writePixel(x, y);
         while (x < end_x)
         {
             if (d <= 0) {
@@ -86,7 +96,7 @@ public:
             {
                 d += dNE; x++; y++;
             }
-            this->DrawCircle(x, y);
+            this->writePixel(x, y);
         }
     }
 
@@ -151,7 +161,7 @@ void DisplaySolutions(void){
 
     g->DrawSelf();
     g->DrawLineOnSelf(15, 15, 10, 10);
-
+    g->writePixel(0, 0);
     glFlush();
 }
 
