@@ -29,12 +29,7 @@ class Grid {
         return viewport_offset + quotent * viewport_grid_size;
     }
 
-    void DrawLine(int start_x, int start_y, int end_x, int end_y) {
-
-    }
-
-public:
-    void writePixel(int x, int y) {
+    void WritePixel(int x, int y) {
         double viewport_x, viewport_y;
         std::tie(viewport_x, viewport_y) = this->GetViewportFromInteger(x, y);
 
@@ -44,7 +39,7 @@ public:
 
         //glEnable(GL_LINE_SMOOTH);
         glLineWidth(2.0);
-
+        glColor3f(0.5,0.5,0.5);
         glBegin(GL_LINES);
         for(int i = 0; i <= triangleAmount; i++)
         {
@@ -54,6 +49,22 @@ public:
         }
         glEnd();
     }
+
+    void DrawLine(int start_x, int start_y, int end_x, int end_y) {
+        double viewport_start_x, viewport_start_y, viewport_end_x, viewport_end_y;
+        std::tie(viewport_start_x, viewport_start_y) = this->GetViewportFromInteger(start_x, start_y);
+        std::tie(viewport_end_x, viewport_end_y) = this->GetViewportFromInteger(end_x, end_y);
+
+
+        glLineWidth(3.0);
+        glColor3f(1,0,0);
+
+        glBegin(GL_LINES);
+        glVertex2d(viewport_start_x, viewport_start_y);
+        glVertex2d(viewport_end_x, viewport_end_y);
+    }
+
+public:
 
     std::pair<double, double> GetViewportFromInteger(int x, int y) {
         double viewport_x = GetViewportCoordOnGrid(
@@ -138,7 +149,7 @@ public:
     void DrawLineOnSelf(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
         auto result = GetLinePointsOnSelf(start_x, start_y, end_x, end_y, stamp_size);
         for(auto point : result) {
-            this->writePixel(point.first, point.second);
+            this->WritePixel(point.first, point.second);
         }
     }
 
@@ -202,9 +213,8 @@ void DisplaySolutions(void){
     Grid *g = new Grid(15, 15, -0.98, -0.98, 1.96, 1.96);
 
     g->DrawSelf();
-    g->DrawLineOnSelf(0, 0, 14, 7, 0);
-    g->DrawLineOnSelf(0, 15, 14, 10, 1);
-    g->writePixel(0, 0);
+    g->DrawLineOnSelf(0, 0, 15, 7, 0);
+    g->DrawLineOnSelf(0, 15, 15, 10, 1);
     glFlush();
 }
 
