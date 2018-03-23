@@ -25,7 +25,7 @@ class Grid {
         return viewport_offset + quotent * viewport_grid_size;
     }
 
-    void writePixel(int x, int y) {
+    void WritePixel(int x, int y) {
         double viewport_x, viewport_y;
         std::tie(viewport_x, viewport_y) = this->GetViewportFromInteger(x, y);
 
@@ -102,7 +102,7 @@ public:
         int dNE = 2 * (dy - dx);
         int x = start_x, y = start_y;
 
-        this->writePixel(x, y);
+        this->WritePixel(x, y);
         while (x < end_x)
         {
             if (d <= 0) {
@@ -113,7 +113,7 @@ public:
             {
                 d += dNE; x++; y++;
             }
-            this->writePixel(x, y);
+            this->WritePixel(x, y);
         }
     }
 
