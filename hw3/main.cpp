@@ -25,11 +25,6 @@ class Grid {
         return viewport_offset + quotent * viewport_grid_size;
     }
 
-    void DrawLine(int start_x, int start_y, int end_x, int end_y) {
-
-    }
-
-public:
     void writePixel(int x, int y) {
         double viewport_x, viewport_y;
         std::tie(viewport_x, viewport_y) = this->GetViewportFromInteger(x, y);
@@ -40,7 +35,7 @@ public:
 
         //glEnable(GL_LINE_SMOOTH);
         glLineWidth(2.0);
-
+        glColor3f(0.5,0.5,0.5);
         glBegin(GL_LINES);
         for(int i = 0; i <= triangleAmount; i++)
         {
@@ -50,6 +45,22 @@ public:
         }
         glEnd();
     }
+
+    void DrawLine(int start_x, int start_y, int end_x, int end_y) {
+        double viewport_start_x, viewport_start_y, viewport_end_x, viewport_end_y;
+        std::tie(viewport_start_x, viewport_start_y) = this->GetViewportFromInteger(start_x, start_y);
+        std::tie(viewport_end_x, viewport_end_y) = this->GetViewportFromInteger(end_x, end_y);
+
+
+        glLineWidth(3.0);
+        glColor3f(1,0,0);
+
+        glBegin(GL_LINES);
+        glVertex2d(viewport_start_x, viewport_start_y);
+        glVertex2d(viewport_end_x, viewport_end_y);
+    }
+
+public:
 
     std::pair<double, double> GetViewportFromInteger(int x, int y) {
         double viewport_x = GetViewportCoordOnGrid(
@@ -167,7 +178,6 @@ void DisplaySolutions(void){
 
     g->DrawSelf();
     g->DrawLineOnSelf(0, 0, 15, 7);
-    g->writePixel(0, 0);
     glFlush();
 }
 
