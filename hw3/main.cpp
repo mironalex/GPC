@@ -5,9 +5,13 @@
 #include <vector>
 #include <tuple>
 #include <cmath>
+#include <set>
 
 // dimensiunea ferestrei in pixeli
 #define dim 300
+
+using std::set;
+using std::pair;
 
 class Grid {
     int num_lines_;
@@ -81,28 +85,60 @@ public:
         this->viewport_size_y_ = viewport_size_y;
     }
 
-    void DrawLineOnSelf(int start_x, int start_y, int end_x, int end_y) {
+    void AddStamp(set<pair<int, int> > &container, int x, int y, int stamp_size) {
+        for(int i = -stamp_size; i <= stamp_size; i++) {
+            for (int j = -stamp_size; j <= stamp_size; j++) {
+                int x_stamp = x + i;
+                int y_stamp = y + j;
+                if (0 <= x_stamp && x_stamp <= this->num_lines_) {
+                    if (0 <= y_stamp && y_stamp <= this->num_columns_) {
+                        container.insert(std::make_pair(x_stamp, y_stamp));
+                    }
+                }
+            }
+        }
+    }
+
+    set<pair<int, int> > GetLinePointsOnSelf(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
+        set<pair<int, int> > result;
+        if (start_x > end_x) {
+            std::tie(start_x, end_x) = std::make_pair(end_x, start_x);
+        }
+
         this->DrawLine(start_x, start_y, end_x, end_y);
 
-        int dx = end_x - start_x, dy = end_y - start_y;
+        int direction_y = end_y >= start_y ? 1 : -1;
+
+        int dx = end_x - start_x, dy = direction_y * (end_y - start_y);
 
         int d = 2 * dy - dx;
         int dE = 2 * dy;
         int dNE = 2 * (dy - dx);
         int x = start_x, y = start_y;
 
-        this->writePixel(x, y);
-        while (x < end_x)
-        {
+        this->AddStamp(result, x, y, stamp_size);
+        while (x <= end_x && y * direction_y <= end_y * direction_y) {
             if (d <= 0) {
                 d += dE;
-                x++;
+                x += 1;
             }
             else
             {
-                d += dNE; x++; y++;
+                d += dNE;
+                x += 1;
+                y += direction_y;
             }
-            this->writePixel(x, y);
+
+            this->AddStamp(result, x, y, stamp_size);
+        }
+
+        return result;
+    }
+
+    void DrawLineOnSelf(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
+        auto result = GetLinePointsOnSelf(start_x, start_y, end_x, end_y, stamp_size);
+        for(auto point : result) {
+            this->writePixel(point.first, point.second);
         }
     }
 
@@ -166,7 +202,8 @@ void DisplaySolutions(void){
     Grid *g = new Grid(15, 15, -0.98, -0.98, 1.96, 1.96);
 
     g->DrawSelf();
-    g->DrawLineOnSelf(0, 0, 15, 7);
+    g->DrawLineOnSelf(0, 0, 14, 7, 0);
+    g->DrawLineOnSelf(0, 15, 14, 10, 1);
     g->writePixel(0, 0);
     glFlush();
 }
