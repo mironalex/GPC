@@ -35,7 +35,7 @@ class Grid {
 
 
         int triangleAmount = 50;
-        double radius = 0.05;
+        double radius = 0.045;
 
         //glEnable(GL_LINE_SMOOTH);
         glLineWidth(2.0);
@@ -97,7 +97,7 @@ public:
     }
 
     void AddStamp(set<pair<int, int> > &container, int x, int y, int stamp_size) {
-        for(int i = -stamp_size; i <= stamp_size; i++) {
+        for(int i = 0; i <= 0; i++) {
             for (int j = -stamp_size; j <= stamp_size; j++) {
                 int x_stamp = x + i;
                 int y_stamp = y + j;
@@ -110,13 +110,11 @@ public:
         }
     }
 
-    set<pair<int, int> > GetLinePointsOnSelf(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
+    set<pair<int, int> > GetLinePointsOnSelfXBounded(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
         set<pair<int, int> > result;
         if (start_x > end_x) {
             std::tie(start_x, end_x) = std::make_pair(end_x, start_x);
         }
-
-        this->DrawLine(start_x, start_y, end_x, end_y);
 
         int direction_y = end_y >= start_y ? 1 : -1;
 
@@ -146,6 +144,26 @@ public:
         return result;
     }
 
+    set<pair<int, int> > GetLinePointsOnSelf(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
+        this->DrawLine(start_x, start_y, end_x, end_y);
+
+        int direction_y = end_y >= start_y ? 1 : -1;
+
+        int dx = end_x - start_x, dy = direction_y * (end_y - start_y);
+
+        if (dx >= dy) {
+            return GetLinePointsOnSelfXBounded(start_x, start_y, end_x, end_y, stamp_size);
+        }
+        else {
+            auto result = GetLinePointsOnSelfXBounded(start_y, start_x, end_y, end_x, stamp_size);
+            set<pair<int, int> > real_coords;
+            for (auto point : result) {
+                real_coords.insert(std::make_pair(point.second, point.first));
+            }
+            return real_coords;
+        }
+    }
+
     void DrawLineOnSelf(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
         auto result = GetLinePointsOnSelf(start_x, start_y, end_x, end_y, stamp_size);
         for(auto point : result) {
@@ -154,13 +172,6 @@ public:
     }
 
     void DrawSelf() {
-        // Viewport offsets
-        double offset_x = -0.98;
-        double offset_y = -0.98;
-
-        double grid_size_x = 1.96;
-        double grid_size_y = 1.96;
-
         glColor3d(0.5, 0.5, 0.5);
 
         // Draw lines
@@ -173,8 +184,8 @@ public:
             );
 
             glBegin(GL_LINES);
-            glVertex2d(viewport_x, offset_y);
-            glVertex2d(viewport_x, offset_y + grid_size_y);
+            glVertex2d(viewport_x, this->viewport_start_y_);
+            glVertex2d(viewport_x, this->viewport_start_y_ + this->viewport_size_y_);
             glEnd();
         }
 
@@ -188,8 +199,8 @@ public:
             );
 
             glBegin(GL_LINES);
-            glVertex2d(offset_x,viewport_y);
-            glVertex2d(offset_x + grid_size_x, viewport_y);
+            glVertex2d(this->viewport_start_x_, viewport_y);
+            glVertex2d(this->viewport_start_x_ + this->viewport_size_x_, viewport_y);
             glEnd();
         }
     }
@@ -210,11 +221,12 @@ void Init(void) {
 
 void DisplaySolutions(void){
     glClear(GL_COLOR_BUFFER_BIT);
-    Grid *g = new Grid(15, 15, -0.98, -0.98, 1.96, 1.96);
+    Grid *g = new Grid(15, 15, -0.92, -0.92, 1.84, 1.84);
 
     g->DrawSelf();
     g->DrawLineOnSelf(0, 0, 15, 7, 0);
     g->DrawLineOnSelf(0, 15, 15, 10, 1);
+
     glFlush();
 }
 
