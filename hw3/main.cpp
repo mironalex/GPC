@@ -96,9 +96,25 @@ public:
         this->viewport_size_y_ = viewport_size_y;
     }
 
-    void AddStamp(set<pair<int, int> > &container, int x, int y, int stamp_size) {
-        for(int i = 0; i <= 0; i++) {
-            for (int j = -stamp_size; j <= stamp_size; j++) {
+    void AddStamp(set<pair<int, int> > &container, int x, int y, int stamp_size, int cadran) {
+        int size_x = 0;
+        int size_y = 0;
+        switch(cadran) {
+            case 0:
+            case 3:
+            case 4:
+            case 7:
+                size_x = stamp_size;
+                break;
+            case 1:
+            case 2:
+            case 5:
+            case 6:
+                size_y = stamp_size;
+        }
+
+        for(int i = -size_x; i <= size_x; i++) {
+            for (int j = -size_y; j <= size_y; j++) {
                 int x_stamp = x + i;
                 int y_stamp = y + j;
                 if (0 <= x_stamp && x_stamp <= this->num_lines_) {
@@ -110,58 +126,116 @@ public:
         }
     }
 
-    set<pair<int, int> > GetLinePointsOnSelfXBounded(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
-        set<pair<int, int> > result;
-        if (start_x > end_x) {
-            std::tie(start_x, end_x) = std::make_pair(end_x, start_x);
-        }
-
-        int direction_y = end_y >= start_y ? 1 : -1;
-
-        int dx = end_x - start_x, dy = direction_y * (end_y - start_y);
-
-        int d = 2 * dy - dx;
-        int dE = 2 * dy;
-        int dNE = 2 * (dy - dx);
-        int x = start_x, y = start_y;
-
-        this->AddStamp(result, x, y, stamp_size);
-        while (x <= end_x && y * direction_y <= end_y * direction_y) {
-            if (d <= 0) {
-                d += dE;
-                x += 1;
+    /*   # 7 # 0 #
+     *    #  #  #
+     *   6 # # # 1
+     *      ###
+     *   #########
+     *      ###
+     *   5 # # # 2
+     *    #  #  #
+     *   # 4 # 3 #
+     */
+    static int GetCadran(int start_x, int start_y, int end_x, int end_y) {
+        if(start_y <= end_y) {
+            // 0, 1, 6, 7
+            if(start_x <= end_x) {
+                // 0, 1
+                if(end_y - start_y > end_x - start_x) {
+                    return 0;
+                }
+                else {
+                    return 1;
+                }
             }
-            else
-            {
-                d += dNE;
-                x += 1;
-                y += direction_y;
+            else {
+                // 6, 7
+                if(end_y - start_y > start_x - end_x) {
+                    return 7;
+                }
+                else {
+                    return 6;
+                }
             }
-
-            this->AddStamp(result, x, y, stamp_size);
         }
-
-        return result;
+        else {
+            // 2, 3, 4, 5
+            if(start_x <= end_x) {
+                // 2, 3
+                if(start_y - end_y > end_x - start_x) {
+                    return 3;
+                }
+                else {
+                    return 2;
+                }
+            }
+            else {
+                // 4, 5
+                if(start_y - end_y > start_x - end_x) {
+                    return 4;
+                }
+                else {
+                    return 5;
+                }
+            }
+        }
     }
+
+    static pair<pair<int, int>, pair<int, int>> GetDirections(int cadran) {
+        switch(cadran) {
+            case 0:
+                return std::make_pair(std::make_pair(1, 1), std::make_pair(0, 1));
+            case 1:
+                return std::make_pair(std::make_pair(1, 0), std::make_pair(1, 1));
+            case 2:
+                return std::make_pair(std::make_pair(1, -1), std::make_pair(1, 0));
+            case 3:
+                return std::make_pair(std::make_pair(0, -1), std::make_pair(1, -1));
+            case 4:
+                return std::make_pair(std::make_pair(-1, -1), std::make_pair(0, -1));
+            case 5:
+                return std::make_pair(std::make_pair(-1, 0), std::make_pair(-1, -1));
+            case 6:
+                return std::make_pair(std::make_pair(-1, 1), std::make_pair(-1, 0));
+            case 7:
+                return std::make_pair(std::make_pair(0, 1), std::make_pair(-1, 1));
+            default:
+                exit(-1);
+        }
+    };
 
     set<pair<int, int> > GetLinePointsOnSelf(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
         this->DrawLine(start_x, start_y, end_x, end_y);
+        set<pair<int, int> > result;
+        int dx = end_x - start_x, dy = end_y - start_y;
 
-        int direction_y = end_y >= start_y ? 1 : -1;
+        pair<int, int> direction_under, direction_up;
+        int cadran = GetCadran(start_x, start_y, end_x, end_y);
+        std::tie(direction_under, direction_up) = GetDirections(cadran);
 
-        int dx = end_x - start_x, dy = direction_y * (end_y - start_y);
+        int d = (direction_under.first + direction_up.first) * dy -
+                (direction_under.second + direction_up.second) * dx;
 
-        if (dx >= dy) {
-            return GetLinePointsOnSelfXBounded(start_x, start_y, end_x, end_y, stamp_size);
-        }
-        else {
-            auto result = GetLinePointsOnSelfXBounded(start_y, start_x, end_y, end_x, stamp_size);
-            set<pair<int, int> > real_coords;
-            for (auto point : result) {
-                real_coords.insert(std::make_pair(point.second, point.first));
+        int x = start_x, y = start_y;
+
+        this->AddStamp(result, x, y, stamp_size, cadran);
+        while (x != end_x || y != end_y) {
+            if (d <= 0) {
+                d += 2 * direction_under.first * dy - 2 * direction_under.second * dx;
+                x += direction_under.first;
+                y += direction_under.second;
             }
-            return real_coords;
+            else
+            {
+                d += 2 * direction_up.first * dy - 2 * direction_up.second * dx;
+                x += direction_up.first;
+                y += direction_up.second;
+            }
+
+            this->AddStamp(result, x, y, stamp_size, cadran);
         }
+
+        return result;
     }
 
     void DrawLineOnSelf(int start_x, int start_y, int end_x, int end_y, int stamp_size) {
