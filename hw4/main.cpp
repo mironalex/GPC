@@ -19,6 +19,8 @@ using std::set;
 using std::pair;
 using std::string;
 
+unsigned char prevKey;
+
 class Grid {
     int num_lines_;
     int num_columns_;
@@ -539,16 +541,26 @@ void Init(void) {
 }
 
 
+
 void DisplaySolutions(void){
     glClear(GL_COLOR_BUFFER_BIT);
     Grid *g = new Grid(15, 15, -0.92, -0.92, 1.84, 1.84);
 
     g->DrawSelf();
-    //g->DrawLineOnSelf(0, 0, 15, 7, 0);
-    //g->DrawLineOnSelf(0, 15, 15, 10, 1);
-    // g->DrawCircleOnSelf(13);
-    // g->DrawElipseOnSelf(8, 8, 6, 4);
-    g->DrawPolyOnSelf("poly.txt");
+
+    switch (prevKey) {
+        case '1':
+            g->DrawCircleOnSelf(13);
+            break;
+        case '2':
+            g->DrawElipseOnSelf(8, 8, 6, 4);
+            break;
+        case '3':
+            g->DrawPolyOnSelf("poly.txt");
+            break;
+        default:
+            break;
+    }
 
     glFlush();
 }
@@ -560,6 +572,7 @@ void Reshape(int w, int h) {
 void KeyboardFunc(unsigned char key, int x, int y) {
     if (key == 27) // escape
         exit(0);
+    prevKey = key;
     glutPostRedisplay();
 }
 
