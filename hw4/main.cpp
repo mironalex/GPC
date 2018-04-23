@@ -6,12 +6,16 @@
 #include <tuple>
 #include <cmath>
 #include <set>
+#include <fstream>
+#include <algorithm>
+#include <cstdlib>
 
 // dimensiunea ferestrei in pixeli
 #define dim 300
 
 using std::set;
 using std::pair;
+using std::string;
 
 class Grid {
     int num_lines_;
@@ -245,6 +249,178 @@ public:
         }
     }
 
+    void AddPointsToCircle(set<pair<int, int> > &container, int x, int y) {
+        container.emplace(x, y);
+
+        // ingrosare
+        container.emplace(x - 1, y);
+        container.emplace(x + 1, y);
+    }
+
+    set<pair<int, int> > GetCirclePointsOnSelf(int radius) {
+        int x = radius, y = 0;
+        double d = 5.0 / 4 - radius;
+        set<pair<int, int> > result;
+        AddPointsToCircle(result, x, y);
+        while (x > y) {
+            if (d < 0) {
+                d += 2 * y + 3;
+                y++;
+            } else {
+                d += 2 * (y - x) + 5;
+                x--;
+                y++;
+            }
+            AddPointsToCircle(result, x, y);
+        }
+
+        return result;
+    }
+
+    void DrawCircleOnSelf(int radius) {
+        auto result = GetCirclePointsOnSelf(radius);
+        for(auto point : result) {
+            this->WritePixel(point.first, point.second);
+        }
+    }
+
+    void AddXSegment(set<pair<int, int> > &container, int y, int start_x, int end_x) {
+        for(int idx = start_x; idx <= end_x; idx++) {
+            container.emplace(idx, y);
+        }
+        for(int idx = end_x; idx <= start_x; idx++) {
+            container.emplace(idx, y);
+        }
+    }
+
+    set<pair<int, int> > GetElipsePointsOnSelf(int origin_x, int origin_y, int radius_x, int radius_y) {
+        set<pair<int, int> > result;
+        int xi = 0, x = 0, y = -radius_y;
+        double fxpyp = 0.0;
+        double deltaV, deltaNV, deltaN;
+
+        AddXSegment(result, origin_y + y, origin_x + xi, origin_x + x);
+        while (radius_x * radius_x * (y + 0.5) < radius_y * radius_y * (x - 1))
+        {
+            deltaV = radius_y * radius_y * ( 2 * x - 1 );
+            deltaNV = radius_y * radius_y * ( 2 * x - 1 ) + radius_x * radius_x * (-2 * y - 1);
+            if (fxpyp - deltaV <= 0.0) {
+                // V este in interior
+                fxpyp -= deltaV;
+                x--;
+                AddXSegment(result, origin_y + y, origin_x + xi, origin_x + x);
+            }
+            else if (fxpyp - deltaNV <= 0.0) {
+                // NV este in interior
+                fxpyp -= deltaNV;
+                x--;y++;
+                AddXSegment(result, origin_y + y, origin_x + xi, origin_x + x);
+            }
+        }
+
+        while (y < 0)
+        {
+            deltaNV = radius_y * radius_y * ( 2 * x - 1 ) + radius_x * radius_x * (-2 * y - 1);
+            deltaN = radius_x * radius_x * (-2 * y - 1);
+            if (fxpyp - deltaNV <= 0.0) {
+                // NV este in interior
+                fxpyp -= deltaNV;
+                x--;y++;
+            }
+            else {
+                // N este in interior
+                fxpyp -= deltaN;
+                y++;
+            }
+            AddXSegment(result, origin_y + y, origin_x + xi, origin_x + x);
+        }
+
+        return result;
+    }
+
+    void DrawElipseOnSelf(int origin_x, int origin_y, int radius_x, int radius_y) {
+        auto result = GetElipsePointsOnSelf(origin_x, origin_y, radius_x, radius_y);
+        for(auto point : result) {
+            this->WritePixel(point.first, point.second);
+        }
+    }
+
+    double intersectPolyLine(int start_x, int start_y, int end_x, int end_y, int y) {
+        if(start_x == end_x) {
+            return start_x;
+        }
+
+        return start_x + (double)(y - start_y) / (double)(end_y - start_y) * (double)(end_x - start_x);
+    }
+
+    bool isBetween(int val, int a, int b) {
+        return (a <= val && val <= b) || (b <= val && val <= a);
+    }
+
+    set<pair<int, int> > GetPolyPointsOnSelf(std::vector<pair<int, int> > &poly, int ymin, int ymax) {
+        set<pair<int, int> > result;
+
+        poly.push_back(poly[0]);
+        for(int y = ymin; y <= ymax; y++) {
+            std::vector<double> polyIntersectPoints;
+            for(int idx = 1; idx < poly.size(); idx++) {
+                pair<int, int> start = poly[idx - 1];
+                pair<int, int> end = poly[idx];
+
+                if(isBetween(y, start.second, end.second) && start.second != end.second) {
+                    double intersection = intersectPolyLine(start.first, start.second, end.first, end.second, y);
+
+                    if((y == end.second && intersection == end.first) ||
+                            (y == start.second && intersection == start.first)) {
+                        int ymin = std::min(start.second, end.second);
+                        if(y == ymin) {
+                            polyIntersectPoints.emplace_back(intersection);
+                        }
+                    }
+                    else {
+                        polyIntersectPoints.emplace_back(intersection);
+                    }
+                }
+            }
+
+            std::sort(polyIntersectPoints.begin(), polyIntersectPoints.end());
+            for(int idx = 0; idx < (int)polyIntersectPoints.size() - 1; idx+=2) {
+                auto start_x = (int)(ceil(polyIntersectPoints[idx]));
+                auto end_x = (int)(floor(polyIntersectPoints[idx + 1]));
+                if(end_x == polyIntersectPoints[idx + 1]) {
+                    end_x--;
+                }
+                AddXSegment(result, y, start_x, end_x);
+            }
+        }
+        poly.pop_back();
+        return result;
+    }
+
+    void DrawPolyOnSelf(const std::string &filename) {
+        int n, x, y;
+        std::ifstream fin(filename);
+        fin >> n;
+        std::vector<pair<int, int> > poly;
+        int ymax = -1, ymin = this->num_columns_ + 1;
+        for(int i = 0; i < n; i++) {
+            fin >> x >> y;
+            poly.emplace_back(x, y);
+            if(y < ymin) {
+                ymin = y;
+            }
+
+            if(y > ymax) {
+                ymax = y;
+            }
+        }
+
+        auto result = GetPolyPointsOnSelf(poly, ymin, ymax);
+        for(auto point : result) {
+            this->WritePixel(point.first, point.second);
+        }
+    }
+
     void DrawSelf() {
         glColor3d(0.5, 0.5, 0.5);
 
@@ -298,8 +474,11 @@ void DisplaySolutions(void){
     Grid *g = new Grid(15, 15, -0.92, -0.92, 1.84, 1.84);
 
     g->DrawSelf();
-    g->DrawLineOnSelf(0, 0, 15, 7, 0);
-    g->DrawLineOnSelf(0, 15, 15, 10, 1);
+    //g->DrawLineOnSelf(0, 0, 15, 7, 0);
+    //g->DrawLineOnSelf(0, 15, 15, 10, 1);
+    //g->DrawCircleOnSelf(13);
+    //g->DrawElipseOnSelf(4, 4, 4, 4);
+    g->DrawPolyOnSelf("poly.txt");
 
     glFlush();
 }
