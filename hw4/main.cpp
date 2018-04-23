@@ -9,6 +9,8 @@
 #include <fstream>
 #include <algorithm>
 #include <cstdlib>
+#include <assert.h>
+#include <iostream>
 
 // dimensiunea ferestrei in pixeli
 #define dim 300
@@ -277,8 +279,32 @@ public:
         return result;
     }
 
+    double Deg2Rad (double degrees) {
+        return degrees * 4.0 * atan (1.0) / 180.0;
+    }
+
+    void DrawViewportCircle(double radius, double origin_x, double origin_y, double start_degree, double end_degree, double precision)
+    {
+        assert(start_degree <= end_degree);
+        assert(precision > 0);
+
+        glColor3d(1.0, 0.0, 0.0);
+        glBegin(GL_LINE_STRIP);
+
+        for (double degree = start_degree; degree <= end_degree; degree += precision)
+        {
+            double degInRad = Deg2Rad(degree);
+            glVertex2d(origin_x + cos(degInRad) * radius, origin_y + sin(degInRad)*radius);
+        }
+
+        glEnd();
+    }
+
     void DrawCircleOnSelf(int radius) {
         auto result = GetCirclePointsOnSelf(radius);
+
+        double viewport_radius = GetViewportFromInteger(0, radius).second - this->viewport_start_y_;
+        DrawViewportCircle(viewport_radius, this->viewport_start_x_, this->viewport_start_y_, 0, 90, 1);
         for(auto point : result) {
             this->WritePixel(point.first, point.second);
         }
@@ -338,8 +364,32 @@ public:
         return result;
     }
 
+    void DrawViewportElipse(double radius_x, double radius_y, double origin_x, double origin_y, double start_degree, double end_degree, double precision)
+    {
+        assert(start_degree <= end_degree);
+        assert(precision > 0);
+
+        glColor3d(1.0, 0.0, 0.0);
+        glBegin(GL_LINE_STRIP);
+
+        for (double degree = start_degree; degree <= end_degree; degree += precision)
+        {
+            double degInRad = Deg2Rad(degree);
+            glVertex2d(origin_x + cos(degInRad) * radius_x, origin_y + sin(degInRad) * radius_y);
+        }
+
+        glEnd();
+    }
+
     void DrawElipseOnSelf(int origin_x, int origin_y, int radius_x, int radius_y) {
         auto result = GetElipsePointsOnSelf(origin_x, origin_y, radius_x, radius_y);
+
+        double viewport_radius_y = GetViewportFromInteger(0, radius_y).second - this->viewport_start_y_;
+        double viewport_radius_x = GetViewportFromInteger(radius_x, 0).first - this->viewport_start_x_;
+        pair<double, double> viewport_origin = GetViewportFromInteger(origin_x, origin_y);
+
+        DrawViewportElipse(viewport_radius_x, viewport_radius_y, viewport_origin.first, viewport_origin.second, 0, 360, 1);
+
         for(auto point : result) {
             this->WritePixel(point.first, point.second);
         }
@@ -387,9 +437,10 @@ public:
             for(int idx = 0; idx < (int)polyIntersectPoints.size() - 1; idx+=2) {
                 auto start_x = (int)(ceil(polyIntersectPoints[idx]));
                 auto end_x = (int)(floor(polyIntersectPoints[idx + 1]));
-                if(end_x == polyIntersectPoints[idx + 1]) {
+                if(end_x == polyIntersectPoints[idx + 1] && end_x > start_x) {
                     end_x--;
                 }
+
                 AddXSegment(result, y, start_x, end_x);
             }
         }
@@ -397,9 +448,26 @@ public:
         return result;
     }
 
+    void DrawPolyViewport(std::vector<pair<int, int> > &poly) {
+        glColor3d(1.0, 0.0, 0.0);
+        glBegin(GL_LINE_LOOP);
+        for(pair<int, int> v : poly) {
+            pair<double, double> viewport_v = GetViewportFromInteger(v.first, v.second);
+
+            glVertex2d(viewport_v.first, viewport_v.second);
+        }
+        glEnd();
+    }
+
     void DrawPolyOnSelf(const std::string &filename) {
         int n, x, y;
         std::ifstream fin(filename);
+
+        if(!fin.good()) {
+            std::cerr << "Missing poly.txt\n";
+            return;
+        }
+
         fin >> n;
         std::vector<pair<int, int> > poly;
         int ymax = -1, ymin = this->num_columns_ + 1;
@@ -416,6 +484,8 @@ public:
         }
 
         auto result = GetPolyPointsOnSelf(poly, ymin, ymax);
+        DrawPolyViewport(poly);
+
         for(auto point : result) {
             this->WritePixel(point.first, point.second);
         }
@@ -476,8 +546,8 @@ void DisplaySolutions(void){
     g->DrawSelf();
     //g->DrawLineOnSelf(0, 0, 15, 7, 0);
     //g->DrawLineOnSelf(0, 15, 15, 10, 1);
-    //g->DrawCircleOnSelf(13);
-    //g->DrawElipseOnSelf(4, 4, 4, 4);
+    // g->DrawCircleOnSelf(13);
+    // g->DrawElipseOnSelf(8, 8, 6, 4);
     g->DrawPolyOnSelf("poly.txt");
 
     glFlush();
