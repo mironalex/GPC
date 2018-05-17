@@ -83,13 +83,13 @@ public:
     bool operator==(const Point &other) {
         return this->x == other.x &&
                this->y == other.y &&
-               this->z == other.z &&
+               this->z == other.z;
     }
 };
 
 class Shape {
 public:
-    virtual Point* getGravityCenter();
+    virtual Point* getGravityCenter()=0;
 };
 
 class Line : public  Shape {
