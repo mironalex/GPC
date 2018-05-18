@@ -1,9 +1,8 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #include <GL/freeglut.h>
-#include <assert.h>
+#include <cassert>
 #include <ctime>
 
 // dimensiunea ferestrei in pixeli
@@ -42,16 +41,25 @@ public:
         this->setCoords(x, y, z);
     }
 
+    Point(Point *a) {
+        this->setCoords(a->x, a->y, a->z);
+    }
+
     void rotate(double radians, Axis axis) {
+        if(radians < 0) {
+            radians = 2.0 * M_PI + radians;
+        }
+
+        double sr = sin(radians), cr = cos(radians);
         switch(axis) {
             case X:
-                this->setCoords(x, y * cos(radians) + z * sin(radians), z * cos(radians) - y * sin(radians));
+                this->setCoords(x, y * cr + z * sr, z * cr - y * sr);
                 break;
             case Y:
-                this->setCoords(x * cos(radians) - z * sin(radians), y, x * sin(radians) + z * cos(radians));
+                this->setCoords(x * cr - z * sr, y, x * sr + z * cr);
                 break;
             case Z:
-                this->setCoords(x * cos(radians) + y * sin(radians), y * sin(radians) - x * sin(radians), z);
+                this->setCoords(x * cr + y * sr, y * cr - x * sr, z);
                 break;
         }
     }
@@ -83,13 +91,13 @@ public:
     bool operator==(const Point &other) {
         return this->x == other.x &&
                this->y == other.y &&
-               this->z == other.z &&
+               this->z == other.z;
     }
 };
 
 class Shape {
 public:
-    virtual Point* getGravityCenter();
+    virtual Point* getGravityCenter()=0;
 };
 
 class Line : public  Shape {
@@ -111,9 +119,9 @@ public:
 };
 
 class Triangle : public Shape {
+public:
     Point *a, *b, *c;
 
-public:
     Triangle(Point* a, Point* b, Point* c) {
         this->a = a;
         this->b = b;
@@ -132,38 +140,69 @@ public:
         this->c->rotate(radians, axis, origin);
     }
 
-    bool alignOz(double stepRadians) {
+    bool alignOz(double stepRadians, bool change_gl_matrix) {
         Point *center = this->getGravityCenter();
+        if(change_gl_matrix) {
+            glMatrixMode(GL_MODELVIEW);
+            glTranslated(-center->x, -center->y, -center->z);
+        }
         bool rotation = false;
 
         this->operator-=(*center);
 
         if(abs(this->b->y - this->a->y) > EPS) {
             double angle = atan2(this->b->y - this->a->y, this->a->z - this->b->z);
-            this->rotate(angleStep(angle, stepRadians), X);
+            double actualRotationAngle = angleStep(angle, stepRadians);
+            this->rotate(actualRotationAngle, X);
+            if(change_gl_matrix) {
+                glMatrixMode(GL_MODELVIEW);
+                glRotated(actualRotationAngle * 180.0 / M_PI, 1, 0, 0);
+            }
             rotation = true;
         }
         else if(abs(this->b->x - this->a->x) > EPS) {
             double angle = atan2(this->a->x - this->b->x, this->a->z - this->b->z);
-            this->rotate(angleStep(angle, stepRadians), Y);
+            double actualRotationAngle = angleStep(angle, stepRadians);
+            this->rotate(actualRotationAngle, Y);
+            if(change_gl_matrix) {
+                glMatrixMode(GL_MODELVIEW);
+                glRotated(actualRotationAngle * 180.0 / M_PI, 0, 1, 0);
+            }
             rotation = true;
         }
 
         this->operator+=(*center);
+        if(change_gl_matrix) {
+            glMatrixMode(GL_MODELVIEW);
+            glTranslated(center->x, center->y, center->z);
+        }
         return rotation;
     }
 
-    void alignToOyz(double stepRadians) {
-        if(!this->alignOz(stepRadians)) {
+    void alignToOyz(double stepRadians, bool change_gl_matrix) {
+        if(!this->alignOz(stepRadians, change_gl_matrix)) {
             if(abs(this->b->x - this->c->x) > EPS) {
                 Point *center = Line(this->a, this->b).getGravityCenter();
 
                 this->operator-=(*center);
+                if(change_gl_matrix) {
+                    glMatrixMode(GL_MODELVIEW);
+                    glTranslated(-center->x, -center->y, -center->z);
+                }
 
                 double angle = atan2(-1.0 * this->c->x, this->c->y);
-                this->rotate(angleStep(angle, stepRadians), Z);
+                double actualRotationAngle = angleStep(angle, stepRadians);
+                if(change_gl_matrix) {
+                    glMatrixMode(GL_MODELVIEW);
+                    glRotated(actualRotationAngle * 180.0 / M_PI, 0, 0, 1);
+                }
+                this->rotate(actualRotationAngle, Z);
 
                 this->operator+=(*center);
+                if(change_gl_matrix) {
+                    glMatrixMode(GL_MODELVIEW);
+                    glTranslated(center->x, center->y, center->z);
+                }
             }
         }
     }
@@ -196,6 +235,27 @@ public:
         (*this->b) -= p;
         (*this->c) -= p;
         return *this;
+    }
+};
+
+class MatrixRotatedTriangle : public Triangle {
+    Triangle *t_initial;
+
+public:
+    MatrixRotatedTriangle(Point *a, Point *b, Point *c) : Triangle(a, b, c) {
+        this->t_initial = new Triangle(
+                new Point(a),
+                new Point(b),
+                new Point(c)
+        );
+    }
+
+    void display() {
+        glBegin(GL_TRIANGLES);
+            this->t_initial->a->display();
+            this->t_initial->b->display();
+            this->t_initial->c->display();
+        glEnd();
     }
 };
 
@@ -284,6 +344,10 @@ class Cube : public Shape {
 
         return *this;
     }
+
+    void display() {
+        
+    }
 };
 
 void DisplayAxe() {
@@ -326,31 +390,38 @@ double rand_double(double a, double b) {
 }
 
 // cub wireframe
-Triangle *t;
-void Display1() {
-    glColor3f(1,0,0);
+Triangle *t, *t_rotated;
+void Display1(bool rotate) {
+    glColor3f(0.5,0.5,0.5);
 
     if(t == nullptr) {
         srand(time(nullptr));
-        Point *a = new Point(rand_double(-1.0, -0.5),
-                             rand_double(-1.0, -0.5),
-                             rand_double(-1.0, -0.5));
 
-        Point *b = new Point(rand_double(-0.5, 0.4),
-                             rand_double(-0.5, 0.4),
-                             rand_double(-0.5, 0.4));
+        double x = rand_double(-1.0, 1.0);
+        double z = rand_double(-1.0, 1.0);
 
-        Point *c = new Point(rand_double(0.4, 1.0),
-                             rand_double(0.4, 1.0),
-                             rand_double(0.4, 1.0));
+        auto *a = new Point(rand_double(-1.0, -0.5),
+                            rand_double(-1.0, -0.5),
+                            rand_double(-1.0, -0.5));
+
+        auto *b = new Point(rand_double(-0.5, 0.4),
+                            rand_double(-0.5, 0.4),
+                            rand_double(-0.5, 0.4));
+
+        auto *c = new Point(rand_double(0.4, 1.0),
+                            rand_double(0.4, 1.0),
+                            rand_double(0.4, 1.0));
 
         t = new Triangle(a, b, c);
     }
 
-    glClear(GL_COLOR_BUFFER_BIT);
-    t->alignToOyz(3.0 * M_PI / 180.0);
-    t->display();
 
+    if (rotate) {
+        t->alignToOyz(30.0 * M_PI / 180.0, false);
+    }
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    t->display();
 }
 
 // cub solid
@@ -375,7 +446,7 @@ void DisplayObiect()
 {
     switch (ob) {
     case cubw:
-        Display1();
+        Display1(false);
         break;
     case cubs:
         Display2();
@@ -449,7 +520,7 @@ void Display(void) {
     glRotated(-20, 0, 1, 0);
     break;
   case '1':
-    Display1();
+    Display1(true);
     ob = cubw;
     break;
   case '2':
