@@ -20,7 +20,7 @@ enum Axis {
     Z  // Z axis
 };
 
-double angleStep(double angle, double maxStep) {
+double step(double angle, double maxStep) {
     if(angle > 0) {
         return angle > maxStep ? maxStep : angle;
     }
@@ -152,7 +152,7 @@ public:
 
         if(abs(this->b->y - this->a->y) > EPS) {
             double angle = atan2(this->b->y - this->a->y, this->a->z - this->b->z);
-            double actualRotationAngle = angleStep(angle, stepRadians);
+            double actualRotationAngle = step(angle, stepRadians);
             this->rotate(actualRotationAngle, X);
             if(change_gl_matrix) {
                 glMatrixMode(GL_MODELVIEW);
@@ -162,7 +162,7 @@ public:
         }
         else if(abs(this->b->x - this->a->x) > EPS) {
             double angle = atan2(this->a->x - this->b->x, this->a->z - this->b->z);
-            double actualRotationAngle = angleStep(angle, stepRadians);
+            double actualRotationAngle = step(angle, stepRadians);
             this->rotate(actualRotationAngle, Y);
             if(change_gl_matrix) {
                 glMatrixMode(GL_MODELVIEW);
@@ -179,7 +179,7 @@ public:
         return rotation;
     }
 
-    void alignToOyz(double stepRadians, bool change_gl_matrix) {
+    void alignToOyz(double stepRadians, double moveStep, bool change_gl_matrix) {
         if(!this->alignOz(stepRadians, change_gl_matrix)) {
             if(abs(this->b->x - this->c->x) > EPS) {
                 Point *center = Line(this->a, this->b).getGravityCenter();
@@ -191,7 +191,7 @@ public:
                 }
 
                 double angle = atan2(-1.0 * this->c->x, this->c->y);
-                double actualRotationAngle = angleStep(angle, stepRadians);
+                double actualRotationAngle = step(angle, stepRadians);
                 if(change_gl_matrix) {
                     glMatrixMode(GL_MODELVIEW);
                     glRotated(actualRotationAngle * 180.0 / M_PI, 0, 0, 1);
@@ -202,6 +202,24 @@ public:
                 if(change_gl_matrix) {
                     glMatrixMode(GL_MODELVIEW);
                     glTranslated(center->x, center->y, center->z);
+                }
+            }
+            else {
+                if(this->a->x != 0 || this->a->y != 0) {
+                    this->operator-=(new Point(
+                            step(this->a->x, moveStep),
+                            step(this->a->y, moveStep),
+                            0
+                    ));
+                }
+                else {
+                    if(this->c->z != 0) {
+                        this->operator-=(new Point(
+                                0,
+                                0,
+                                step(this->c->z, moveStep)
+                        ));
+                    }
                 }
             }
         }
@@ -346,7 +364,6 @@ class Cube : public Shape {
     }
 
     void display() {
-        
     }
 };
 
@@ -398,7 +415,7 @@ void Display1(bool rotate) {
         srand(time(nullptr));
 
         double x = rand_double(-1.0, 1.0);
-        double z = rand_double(-1.0, 1.0);
+            double z = rand_double(-1.0, 1.0);
 
         auto *a = new Point(rand_double(-1.0, -0.5),
                             rand_double(-1.0, -0.5),
@@ -417,17 +434,35 @@ void Display1(bool rotate) {
 
 
     if (rotate) {
-        t->alignToOyz(30.0 * M_PI / 180.0, false);
+        t->alignToOyz(15.0 * M_PI / 180.0, 0.02, false);
     }
 
     glClear(GL_COLOR_BUFFER_BIT);
+    DisplayAxe();
     t->display();
 }
 
+double degrees = 0;
+
 // cub solid
 void Display2() {
-    glColor3f(1,0,0);
-    glutSolidCube(1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    DisplayAxe();
+
+    double degreeStep = 3.0;
+    degrees += degreeStep;
+    if(degrees >= 360.0) {
+        degrees -= 360;
+    }
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+        glColor3f(1,0,0);
+
+        glRotated(degrees, 1, 1, 1);
+
+        glutWireCube(1);
+    glPopMatrix();
 }
 
 // sfera wireframe
